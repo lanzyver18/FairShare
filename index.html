@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas Clone Prototype</title>
+    <title>Cloud LMS - Powered by Firebase</title>
     <style>
         :root {
             --sidebar-bg: #2D3B45;
-            --sidebar-active: #ffffff;
             --primary-blue: #0077c2;
             --bg-gray: #f5f5f5;
             --border: #e1e1e1;
@@ -18,121 +17,118 @@
         /* Sidebar Navigation */
         nav { width: 85px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
         .nav-item { margin-bottom: 25px; cursor: pointer; font-size: 11px; text-align: center; opacity: 0.8; transition: 0.2s; width: 100%; }
-        .nav-item:hover { opacity: 1; border-left: 4px solid var(--primary-blue); }
-        .nav-item.active { opacity: 1; border-left: 4px solid white; }
-        .icon-placeholder { width: 30px; height: 30px; background: #555; margin: 0 auto 5px; border-radius: 4px; display: block; }
+        .nav-item:hover, .nav-item.active { opacity: 1; border-left: 4px solid white; }
+        .icon-box { width: 30px; height: 30px; background: #555; margin: 0 auto 5px; border-radius: 4px; }
 
-        /* Content Container */
+        /* Main Area */
         .app-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
         header { background: white; padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .view-content { padding: 30px; }
 
         /* Course Cards */
         .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
-        .card { background: white; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; overflow: hidden; }
-        .card-banner { height: 130px; background: var(--primary-blue); }
+        .card { background: white; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; overflow: hidden; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card-banner { height: 120px; background: var(--primary-blue); }
         .card-body { padding: 15px; }
-        .card-body h3 { margin: 0; font-size: 16px; color: var(--primary-blue); }
-        .card-body p { font-size: 13px; color: #666; margin-top: 5px; }
 
-        /* Modules & Tables */
-        .module-item { background: white; border: 1px solid var(--border); padding: 15px; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        /* Grade Table */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; }
         th, td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border); }
-        th { background: #f9f9f9; color: #444; }
 
-        /* Utility */
         .hidden { display: none; }
-        .btn { padding: 8px 16px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn { padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="nav-item active" onclick="showView('dashboard')">
-            <span class="icon-placeholder"></span>Dashboard
-        </div>
-        <div class="nav-item" onclick="showView('courses')">
-            <span class="icon-placeholder"></span>Courses
-        </div>
-        <div class="nav-item" onclick="showView('grades')">
-            <span class="icon-placeholder"></span>Grades
-        </div>
-        <div class="nav-item">
-            <span class="icon-placeholder"></span>Calendar
-        </div>
+        <div class="nav-item active" onclick="showView('dashboard')"><div class="icon-box"></div>Dashboard</div>
+        <div class="nav-item" onclick="showView('grades')"><div class="icon-box"></div>Grades</div>
     </nav>
 
     <div class="app-container">
         <div id="dashboard" class="view">
-            <header><h1>Dashboard</h1></header>
+            <header><h1>Canvas Dashboard</h1> <button class="btn" id="loginBtn">Sign In</button></header>
             <div class="view-content">
-                <div class="course-grid">
-                    <div class="card" onclick="showView('course-detail')">
-                        <div class="card-banner" style="background: #e91e63;"></div>
-                        <div class="card-body"><h3>Biology 101</h3><p>BIOL-S26</p></div>
-                    </div>
-                    <div class="card" onclick="showView('course-detail')">
-                        <div class="card-banner" style="background: #3f51b5;"></div>
-                        <div class="card-body"><h3>Modern Architecture</h3><p>ARC-402</p></div>
+                <div class="course-grid" id="courseList">
+                    <div class="card">
+                        <div class="card-banner"></div>
+                        <div class="card-body"><h3>Loading Courses...</h3></div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div id="course-detail" class="view hidden">
-            <header>
-                <h1>Modern Architecture > Modules</h1>
-                <button class="btn" onclick="showView('dashboard')">Back to Dashboard</button>
-            </header>
-            <div class="view-content">
-                <h3>Course Modules</h3>
-                <div class="module-item"><span>Module 1: Introduction to Gothic Design</span> <span>🔓</span></div>
-                <div class="module-item"><span>Module 2: The Industrial Revolution</span> <span>🔓</span></div>
-                <div class="module-item"><span>Module 3: Post-Modernism (Quiz)</span> <span>🔒</span></div>
             </div>
         </div>
 
         <div id="grades" class="view hidden">
             <header><h1>Grades</h1></header>
             <div class="view-content">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Assignment</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Midterm Essay</td><td>Mar 15</td><td>Graded</td><td>92/100</td></tr>
-                        <tr><td>Structure Lab</td><td>Mar 28</td><td>Submitted</td><td>—</td></tr>
-                        <tr><td>Final Project</td><td>May 10</td><td>Missing</td><td>0/100</td></tr>
-                    </tbody>
+                <table id="gradesTable">
+                    <thead><tr><th>Assignment</th><th>Score</th></tr></thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <script>
-        function showView(viewId) {
-            // Hide all views
-            document.querySelectorAll('.view').forEach(view => {
-                view.classList.add('hidden');
-            });
-            
-            // Show requested view
-            document.getElementById(viewId).classList.remove('hidden');
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-            // Update Sidebar Active State
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if(item.innerText.toLowerCase() === viewId) {
-                    item.classList.add('active');
-                }
-            });
+        const firebaseConfig = {
+            apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
+            authDomain: "fireshare-32e9e.firebaseapp.com",
+            projectId: "fireshare-32e9e",
+            storageBucket: "fireshare-32e9e.firebasestorage.app",
+            messagingSenderId: "188712742694",
+            appId: "1:188712742694:web:85c6e61c34d0745f835be7",
+            measurementId: "G-8WXC7SKGYN"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // 1. Simple Navigation Logic
+        window.showView = (viewId) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+        };
+
+        // 2. Auth Logic (Google Sign-In)
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            signInWithPopup(auth, provider).then((result) => {
+                alert("Welcome " + result.user.displayName);
+                document.getElementById('loginBtn').innerText = result.user.displayName;
+            }).catch(error => console.error(error));
+        });
+
+        // 3. Load Courses from Firestore
+        // Note: You need to create a collection named "courses" in your Firebase Console
+        async function loadCourses() {
+            const querySnapshot = await getDocs(collection(db, "courses"));
+            const container = document.getElementById('courseList');
+            
+            if (!querySnapshot.empty) {
+                container.innerHTML = ""; // Clear loader
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    container.innerHTML += `
+                        <div class="card">
+                            <div class="card-banner" style="background:${data.color || '#0077c2'}"></div>
+                            <div class="card-body">
+                                <h3>${data.name}</h3>
+                                <p>${data.code}</p>
+                            </div>
+                        </div>`;
+                });
+            }
         }
+
+        loadCourses();
     </script>
 </body>
 </html>
