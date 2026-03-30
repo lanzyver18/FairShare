@@ -3,79 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Institution LMS | Manual Login</title>
+    <title>Blackboard Learn Pro | Institution Portal</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
             --bb-charcoal: #262626;
             --bb-gold: #b28e0e;
             --bb-bg: #f5f5f5;
+            --bb-border: #cccccc;
+            --bb-blue: #005689;
             --white: #ffffff;
         }
 
-        body { font-family: Arial, sans-serif; margin: 0; background: var(--bb-bg); height: 100vh; overflow: hidden; }
+        body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: var(--bb-bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: #333; }
 
-        /* Blackboard Login Box */
-        #authOverlay { 
-            position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; 
-        }
-        .login-card {
-            background: #333; padding: 30px; border-radius: 4px; width: 320px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 5px solid var(--bb-gold);
-        }
-        input { 
-            width: 100%; padding: 12px; margin: 10px 0; border-radius: 2px; border: none; box-sizing: border-box; 
-        }
-        .btn-login { 
-            width: 100%; padding: 12px; background: var(--bb-gold); color: white; 
-            border: none; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-        .g-recaptcha { margin: 15px 0; transform: scale(0.9); transform-origin: 0 0; }
+        /* --- LOGIN INTERFACE --- */
+        #authOverlay { position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: #333; width: 350px; padding: 40px; border-radius: 4px; border-top: 6px solid var(--bb-gold); box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; }
+        .login-box h2 { margin: 0 0 20px; font-size: 1.5rem; font-weight: normal; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: none; border-radius: 2px; box-sizing: border-box; font-size: 14px; }
+        .btn-bb { width: 100%; padding: 12px; background: var(--bb-gold); color: white; border: none; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .btn-bb:hover { background: #96780c; }
+        .captcha-container { margin-bottom: 15px; transform: scale(0.85); transform-origin: 0 0; }
 
-        /* Main App Styles (Existing) */
-        #topBanner { height: 50px; background: var(--bb-charcoal); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .wrapper { display: flex; height: calc(100vh - 50px); }
-        nav { width: 200px; background: #e1e1e1; border-right: 1px solid #ccc; }
-        .nav-item { padding: 15px 20px; border-bottom: 1px solid #d4d4d4; cursor: pointer; color: #444; }
-        main { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        /* --- APP LAYOUT --- */
+        #topBanner { height: 55px; background: var(--bb-charcoal); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; }
+        .wrapper { display: flex; flex: 1; overflow: hidden; }
+        
+        /* SIDEBAR */
+        nav { width: 220px; background: #e1e1e1; border-right: 1px solid var(--bb-border); display: flex; flex-direction: column; padding-top: 10px; }
+        .nav-item { padding: 15px 25px; border-bottom: 1px solid #d4d4d4; cursor: pointer; color: #444; font-size: 14px; transition: 0.1s; }
+        .nav-item:hover { background: #d4d4d4; }
+        .nav-item.active { background: var(--bb-gold); color: white; font-weight: bold; }
+
+        /* CONTENT */
+        main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        header { background: #eee; padding: 25px 35px; border-bottom: 1px solid var(--bb-border); }
+        header h1 { margin: 0; font-size: 1.6rem; font-weight: normal; color: #222; }
+        .content-area { padding: 35px; max-width: 1000px; }
+
+        /* DASHBOARD STYLING */
+        .section-title { font-size: 1.1rem; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 25px; font-weight: bold; }
+        .course-card { background: white; border: 1px solid var(--bb-border); margin-bottom: 15px; display: flex; cursor: pointer; border-radius: 3px; transition: 0.2s; }
+        .course-card:hover { border-color: #888; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+        .course-accent { width: 10px; background: var(--bb-gold); }
+        .course-info { padding: 20px; }
+        .course-info h3 { margin: 0; color: var(--bb-blue); font-size: 1.15rem; }
+        .course-info h3:hover { text-decoration: underline; }
+
+        /* GLOBAL UTILITIES */
         .hidden { display: none !important; }
+        .bb-box { background: white; padding: 25px; border: 1px solid var(--bb-border); border-left: 5px solid #555; margin-bottom: 20px; border-radius: 2px; }
+        .bb-box h4 { margin: 0 0 10px; color: var(--bb-blue); font-size: 1.1rem; }
     </style>
 </head>
 <body>
 
     <div id="authOverlay">
-        <div class="login-card">
-            <h2 style="margin-top:0;">Institution Login</h2>
-            <input type="email" id="email" placeholder="Email Address">
+        <div class="login-box">
+            <h2>Institution Login</h2>
+            <input type="email" id="email" placeholder="Username / Email">
             <input type="password" id="password" placeholder="Password">
             
-            <div class="g-recaptcha" data-sitekey="6LfGlZ4sAAAAAM1MFntkDwrI-agOqq0NQgEsvO8_"></div>
-            
-            <button class="btn-login" id="manualLoginBtn">Sign In</button>
-            <p id="errorMsg" style="color: #ff7675; font-size: 12px; margin-top: 10px;"></p>
+            <div class="captcha-container">
+                <div class="g-recaptcha" data-sitekey="6LfGlZ4sAAAAAM1MFntkDwrI-agOqq0NQgEsvO8_"></div>
+            </div>
+
+            <button class="btn-bb" id="loginBtn">Login</button>
+            <p id="authError" style="color: #ff7675; font-size: 12px; margin-top: 15px; text-align: center;"></p>
         </div>
     </div>
 
-    <div id="appInterface" class="hidden">
+    <div id="appContainer" class="hidden">
         <div id="topBanner">
-            <b>Blackboard Learn</b>
-            <a id="logoutBtn" style="color:white; cursor:pointer; font-size:13px;">Logout</a>
+            <span style="font-weight:bold; letter-spacing: 0.5px;">BLACKBOARD LEARN PRO</span>
+            <div style="font-size: 13px;">
+                <span id="userNameDisplay"></span> | <a id="logoutLink" style="color:white; cursor:pointer; text-decoration: underline;">Logout</a>
+            </div>
         </div>
+
         <div class="wrapper">
-            <nav>
-                <div class="nav-item">My Institution</div>
-                <div class="nav-item">Courses</div>
+            <nav id="sidebar">
+                <div class="nav-item active" onclick="switchView('dashboard')">My Institution</div>
+                <div class="nav-item" onclick="switchView('assignments')">Assignments</div>
+                <div class="nav-item" onclick="switchView('grades')">My Grades</div>
+                <div class="nav-item">Tools</div>
             </nav>
+
             <main>
-                <h1>Welcome to your Dashboard</h1>
-                <p>You have successfully authenticated with Email and reCAPTCHA.</p>
+                <div id="dashboard" class="view">
+                    <header><h1>My Courses</h1></header>
+                    <div class="content-area">
+                        <div class="section-title">Enrolled Courses</div>
+                        <div id="courseList">Loading course data...</div>
+                    </div>
+                </div>
+
+                <div id="course-view" class="view hidden">
+                    <header><h1 id="activeCourseTitle">Course Details</h1></header>
+                    <div class="content-area">
+                        <div class="bb-box" style="border-left-color: var(--bb-gold);">
+                            <h4>Announcements</h4>
+                            <p>No new announcements for this course.</p>
+                        </div>
+                        <div class="bb-box">
+                            <h4>Course Content</h4>
+                            <p>Select a module to begin your coursework.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="assignments" class="view hidden">
+                    <header><h1>Activity Stream</h1></header>
+                    <div class="content-area">
+                        <div class="section-title">Upcoming Tasks</div>
+                        <div class="bb-box"><h4>Capstone Project Phase 1</h4><p>Status: <b style="color:var(--bb-gold)">Due Soon</b> | April 10</p></div>
+                    </div>
+                </div>
+
+                <div id="grades" class="view hidden">
+                    <header><h1>Grades</h1></header>
+                    <div class="content-area">
+                        <table style="width:100%; border-collapse: collapse; background:white; border:1px solid #ccc;">
+                            <tr style="background:#f0f0f0;"><th style="padding:15px; border:1px solid #ccc; text-align:left;">Item</th><th style="padding:15px; border:1px solid #ccc;">Grade</th></tr>
+                            <tr><td style="padding:15px; border:1px solid #ccc;">Midterm Exam</td><td style="padding:15px; border:1px solid #ccc; text-align:center;">94 / 100</td></tr>
+                        </table>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -88,40 +149,86 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         const auth = getAuth(app);
 
         // --- AUTH OBSERVER ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('authOverlay').classList.add('hidden');
-                document.getElementById('appInterface').classList.remove('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
+                loadFirestoreCourses();
             } else {
                 document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('appInterface').classList.add('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
             }
         });
 
-        // --- MANUAL LOGIN LOGIC ---
-        document.getElementById('manualLoginBtn').onclick = async () => {
+        // --- MANUAL LOGIN WITH RECAPTCHA ---
+        document.getElementById('loginBtn').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const response = grecaptcha.getResponse();
+            const captchaResponse = grecaptcha.getResponse();
 
-            // 1. Check reCAPTCHA
-            if (response.length === 0) {
-                document.getElementById('errorMsg').innerText = "Please complete the reCAPTCHA.";
+            if (!captchaResponse) {
+                document.getElementById('authError').innerText = "Please complete the reCAPTCHA.";
                 return;
             }
 
-            // 2. Firebase Login
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                document.getElementById('errorMsg').innerText = "Login Failed: " + error.message;
+            } catch (err) {
+                document.getElementById('authError').innerText = "Invalid credentials. Try again.";
+                grecaptcha.reset();
             }
         };
 
-        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+        // --- LOGOUT ---
+        document.getElementById('logoutLink').onclick = () => signOut(auth);
+
+        // --- VIEW CONTROLLER ---
+        window.switchView = (viewId, courseName = "") => {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            if(courseName) document.getElementById('activeCourseTitle').innerText = courseName;
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.innerText.toLowerCase().includes(viewId.replace('dashboard','institution'))) item.classList.add('active');
+            });
+        };
+
+        // --- LOAD COURSES ---
+        async function loadFirestoreCourses() {
+            try {
+                const snap = await getDocs(collection(db, "courses"));
+                const list = document.getElementById('courseList');
+                list.innerHTML = "";
+                
+                if(snap.empty) {
+                    list.innerHTML = "<p>No enrolled courses found.</p>";
+                    return;
+                }
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'course-card';
+                    card.onclick = () => switchView('course-view', data.name);
+                    card.innerHTML = `
+                        <div class="course-accent" style="background:${data.color || '#b28e0e'}"></div>
+                        <div class="course-info">
+                            <h3>${data.name}</h3>
+                            <p>${data.code || 'INST-001'}</p>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (e) {
+                console.error("Firestore error:", e);
+            }
+        }
     </script>
 </body>
 </html>
