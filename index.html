@@ -3,356 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Institution LMS | Powered by Blackboard Design</title>
+    <title>Institution LMS | Blackboard Learn</title>
     <style>
-        /* Blackboard Color Palette & Typography */
         :root {
             --bb-charcoal: #262626;
             --bb-gold: #b28e0e;
-            --bb-bg-gray: #f5f5f5;
+            --bb-bg: #f5f5f5;
             --bb-border: #cccccc;
             --white: #ffffff;
-            --text-main: #333333;
+            --bb-blue: #005689;
         }
 
-        body { 
-            font-family: Arial, Helvetica, sans-serif; /* Bb uses system fonts */
-            font-size: 14px; 
-            margin: 0; 
-            display: flex; 
-            height: 100vh; 
-            background: var(--bb-bg-gray); 
-            overflow: hidden; 
-            color: var(--text-main);
-        }
+        body { font-family: Arial, sans-serif; margin: 0; background: var(--bb-bg); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* 1. Top Header Banner (Bb Classic) */
-        #topBanner {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 50px;
-            background: var(--bb-charcoal);
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        #topBanner .logo { font-weight: bold; font-size: 1.2rem; }
-        #topBanner .user-controls { font-size: 13px; display: flex; gap: 15px; align-items: center;}
-        #topBanner a { color: var(--white); text-decoration: none; cursor: pointer; }
-        #topBanner a:hover { text-decoration: underline; }
+        /* Top Bar */
+        #topBanner { height: 50px; background: var(--bb-charcoal); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; }
+        #topBanner b { font-size: 1.2rem; }
 
-        /* 2. Side Navigation (List-based, not icon-based) */
-        nav { 
-            width: 220px; 
-            background: #e1e1e1; /* Lighter sidebar */
-            color: var(--text-main); 
-            display: flex; 
-            flex-direction: column; 
-            padding-top: 60px; /* Account for top banner */
-            z-index: 100; 
-            border-right: 1px solid var(--bb-border);
-        }
-        .nav-item { 
-            cursor: pointer; 
-            font-size: 14px; 
-            padding: 12px 20px; 
-            border-bottom: 1px solid #d4d4d4;
-            color: #444;
-            transition: 0.1s;
-        }
-        .nav-item:hover { background: #d4d4d4; color: black; }
-        .nav-item.active { 
-            background: var(--bb-gold); 
-            color: var(--white); 
-            font-weight: bold;
-            border-bottom: 1px solid var(--bb-gold);
-        }
-
-        /* 3. Main Content Area */
-        .app-container { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            padding-top: 50px; /* Account for top banner */
-            overflow-y: auto; 
-        }
+        /* Layout */
+        .wrapper { display: flex; flex-grow: 1; overflow: hidden; }
         
-        header { 
-            background: #eeeeee; 
-            padding: 20px 30px; 
-            border-bottom: 1px solid var(--bb-border); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-        }
-        header h1 { margin: 0; font-size: 1.6rem; color: #222; font-weight: normal; }
+        /* Sidebar */
+        nav { width: 210px; background: #e1e1e1; border-right: 1px solid var(--bb-border); display: flex; flex-direction: column; }
+        .nav-item { padding: 15px 20px; border-bottom: 1px solid #d4d4d4; cursor: pointer; color: #444; font-size: 14px; }
+        .nav-item:hover { background: #d4d4d4; }
+        .nav-item.active { background: var(--bb-gold); color: white; font-weight: bold; }
 
-        .view-content { padding: 30px; box-sizing: border-box; }
+        /* Main Content */
+        main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        header { background: #eee; padding: 20px 30px; border-bottom: 1px solid var(--bb-border); }
+        header h1 { margin: 0; font-size: 1.5rem; font-weight: normal; }
+        .view-content { padding: 30px; }
 
-        /* 4. Auth Overlay */
-        #authOverlay { 
-            position: fixed; inset: 0; 
-            background: var(--bb-charcoal); 
-            z-index: 2000; 
-            display: flex; justify-content: center; align-items: center; 
-            color: white; flex-direction: column; 
-        }
-        #authOverlay h1 { font-size: 2.2rem; margin-bottom: 10px; font-weight: bold;}
-        #authOverlay p { color: #aaa; margin-bottom: 30px;}
-        
-        /* 5. Course Modules List (Bb style, not cards) */
-        #courseListContainer h2 { border-bottom: 2px solid var(--bb-charcoal); padding-bottom: 10px; margin-bottom: 20px;}
-        .course-list-item { 
-            background: var(--white); 
-            border: 1px solid var(--bb-border); 
-            border-radius: 3px;
-            cursor: pointer; 
-            margin-bottom: 15px; 
-            display: flex;
-            align-items: stretch;
-            transition: 0.2s;
-        }
-        .course-list-item:hover { border-color: #999; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
-        .course-color-bar { width: 10px; background: var(--primary-blue); border-radius: 3px 0 0 3px;}
-        .course-item-body { padding: 15px 20px; }
-        .course-item-body h3 { margin: 0; font-size: 1.1rem; color: #005689; text-decoration: none; } /* Bb Link Blue */
-        .course-item-body h3:hover { text-decoration: underline; }
-        .course-item-body p { margin: 5px 0 0; color: #666; font-size: 13px;}
+        /* Course List Style */
+        .course-item { background: white; border: 1px solid var(--bb-border); margin-bottom: 10px; display: flex; cursor: pointer; border-radius: 3px; }
+        .course-item:hover { border-color: #999; }
+        .color-tab { width: 8px; background: var(--bb-gold); }
+        .course-text { padding: 15px; }
+        .course-text h3 { margin: 0; color: var(--bb-blue); font-size: 1.1rem; }
+        .course-text h3:hover { text-decoration: underline; }
 
-        /* Content Items & Tables */
-        .content-item { 
-            background: var(--white); 
-            padding: 20px; 
-            border: 1px solid var(--bb-border); 
-            margin-bottom: 15px; 
-            border-radius: 3px; 
-            border-left: 4px solid #555; /* Content icon color */
-        }
-        .content-item h4 { margin: 0 0 10px; color: #005689; font-size: 1.1rem;}
-        .content-item p { margin: 0; color: #555; line-height: 1.5;}
-        
-        table.bb-table { 
-            width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--bb-border); 
-        }
-        table.bb-table th { background: #f0f0f0; text-align: left; padding: 12px; border-bottom: 2px solid var(--bb-border); color: #444;}
-        table.bb-table td { text-align: left; padding: 12px; border-bottom: 1px solid var(--bb-border); color: #333;}
-        table.bb-table tr:hover td { background-color: #f9f9f9; }
+        /* Content Items */
+        .bb-box { background: white; padding: 20px; border: 1px solid var(--bb-border); border-left: 5px solid #555; margin-bottom: 15px; }
+        .bb-box h4 { margin: 0 0 10px; color: var(--bb-blue); }
 
-        /* Utilities */
+        /* Auth Overlay */
+        #authOverlay { position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .btn-google { background: #4285F4; color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+
         .hidden { display: none !important; }
-        .btn-bb { 
-            padding: 8px 18px; 
-            background: #e1e1e1; /* Default Bb button */
-            color: #333; 
-            border: 1px solid #b7b7b7; 
-            border-radius: 3px; 
-            cursor: pointer; 
-            font-size: 13px;
-        }
-        .btn-bb:hover { background: #d4d4d4; border-color: #999; }
-        .btn-bb-primary {
-            background: var(--bb-charcoal);
-            color: white;
-            border-color: #1a1a1a;
-        }
-        .btn-bb-primary:hover { background: #000; }
-        .btn-bb-google { background: #4285F4; color: white; border: none; font-size: 15px; padding: 12px 24px;}
-
+        #loading-indicator { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--bb-gold); z-index: 3000; transition: width 0.3s; }
     </style>
 </head>
 <body>
 
+    <div id="loading-indicator"></div>
+
     <div id="authOverlay">
         <h1>Institution LMS</h1>
-        <p>Welcome to Blackboard Learn</p>
-        <button class="btn-bb btn-bb-google" id="loginBtn">Sign in with Google</button>
+        <p>Blackboard Learn Authentication</p>
+        <button class="btn-google" id="loginBtn">Sign in with Google</button>
+        <p id="statusMsg" style="margin-top: 20px; color: #aaa;"></p>
     </div>
 
     <div id="topBanner" class="hidden">
-        <div class="logo">Blackboard Learn</div>
-        <div class="user-controls">
-            <span id="userDisplay"></span>
-            <a id="logoutBtn">[ Logout ]</a>
-        </div>
+        <b>Blackboard Learn</b>
+        <div><span id="userName"></span> | <a id="logoutBtn" style="color:white; cursor:pointer;">Logout</a></div>
     </div>
 
-    <nav id="mainNav" class="hidden">
-        <div class="nav-item active" onclick="showView('dashboard')">My Institution</div>
-        <div class="nav-item" onclick="showView('assignments')">Assigments</div>
-        <div class="nav-item" onclick="showView('grades')">My Grades</div>
-    </nav>
+    <div class="wrapper">
+        <nav id="sidebar" class="hidden">
+            <div class="nav-item active" onclick="showView('dashboard')">My Institution</div>
+            <div class="nav-item" onclick="showView('assignments')">Assignments</div>
+            <div class="nav-item" onclick="showView('grades')">My Grades</div>
+        </nav>
 
-    <div class="app-container">
-        
-        <div id="dashboard" class="view hidden">
-            <header><h1>My Courses</h1></header>
-            <div class="view-content" id="courseListContainer">
-                <h2>Courses where you are: Student</h2>
-                <div id="courseList">
-                    <p>Connecting to database...</p>
+        <main id="appBody" class="hidden">
+            
+            <div id="dashboard" class="view">
+                <header><h1>My Courses</h1></header>
+                <div class="view-content">
+                    <h2 style="font-size: 1.2rem; border-bottom: 2px solid #222; padding-bottom: 5px;">Course List</h2>
+                    <div id="courseList">Loading courses...</div>
                 </div>
             </div>
-        </div>
 
-        <div id="course-view" class="view hidden">
-            <header>
-                <h1 id="activeCourseTitle">Course</h1> 
-                <button class="btn-bb" onclick="showView('dashboard')">< Back</button>
-            </header>
-            <div class="view-content">
-                <div class="content-item" style="border-left-color: var(--bb-gold);">
-                    <h4>Course Syllabus</h4>
-                    <p>Review the syllabus for course policies and schedule.</p>
-                </div>
-                <h3>Course Content</h3>
-                <div class="content-item">
-                    <h4>Week 1: Introduction</h4>
-                    <p>Learning Objectives and required readings are listed here.</p>
-                </div>
-                <div class="content-item">
-                    <h4>Week 2: Historical Context</h4>
-                    <p>Review lecture slides and complete the short quiz.</p>
+            <div id="course-view" class="view hidden">
+                <header><h1 id="activeCourseTitle">Course Content</h1></header>
+                <div class="view-content">
+                    <div class="bb-box" style="border-left-color: var(--bb-gold);">
+                        <h4>Syllabus</h4>
+                        <p>Download the latest version of the course schedule.</p>
+                    </div>
+                    <div class="bb-box">
+                        <h4>Week 1: Foundations</h4>
+                        <p>Complete the reading assignments before Wednesday.</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="assignments" class="view hidden">
-            <header><h1>Assignments</h1></header>
-            <div class="view-content">
-                <div class="content-item">
-                    <h4>Research Essay Proposal</h4>
-                    <p>Due Date: April 10, 2026 11:59 PM<br>Status: <span style="color:green; font-weight:bold;">Submitted</span></p>
-                </div>
-                <div class="content-item">
-                    <h4>Final Project Draft</h4>
-                    <p>Due Date: May 01, 2026 11:59 PM<br>Status: <span style="color:#cc0000; font-weight:bold;">Needs Attempt</span></p>
+            <div id="assignments" class="view hidden">
+                <header><h1>Assignments</h1></header>
+                <div class="view-content">
+                    <div class="bb-box"><h4>Final Essay Proposal</h4><p>Due: April 10 | Status: Submitted</p></div>
+                    <div class="bb-box"><h4>Unit Quiz 1</h4><p>Due: April 15 | Status: Needs Attempt</p></div>
                 </div>
             </div>
-        </div>
 
-        <div id="grades" class="view hidden">
-            <header><h1>My Grades</h1></header>
-            <div class="view-content">
-                <table class="bb-table">
-                    <thead>
-                        <tr><th>Item</th><th>Due Date</th><th>Grade</th><th>Feedback</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Midterm Exam</td><td>Mar 15, 2026</td><td>92.00 / 100</td><td>Good work.</td></tr>
-                        <tr><td>Discussion 1</td><td>Feb 20, 2026</td><td>10.00 / 10</td><td>-</td></tr>
-                        <tr><td>Quiz 2</td><td>Mar 01, 2026</td><td>18.50 / 20</td><td>Review Q5.</td></tr>
-                    </tbody>
-                </table>
+            <div id="grades" class="view hidden">
+                <header><h1>My Grades</h1></header>
+                <div class="view-content">
+                    <table style="width:100%; border-collapse: collapse; background:white; border: 1px solid #ccc;">
+                        <tr style="background:#eee;"><th style="padding:10px; border:1px solid #ccc;">Item</th><th style="padding:10px; border:1px solid #ccc;">Grade</th></tr>
+                        <tr><td style="padding:10px; border:1px solid #ccc;">Midterm</td><td style="padding:10px; border:1px solid #ccc;">92 / 100</td></tr>
+                    </table>
+                </div>
             </div>
-        </div>
 
+        </main>
     </div>
 
     <script type="module">
-        // Standard Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // *** YOUR PROVIDED CONFIGURATION ***
         const firebaseConfig = {
             apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
             authDomain: "fireshare-32e9e.firebaseapp.com",
             projectId: "fireshare-32e9e",
             storageBucket: "fireshare-32e9e.firebasestorage.app",
             messagingSenderId: "188712742694",
-            appId: "1:188712742694:web:85c6e61c34d0745f835be7",
-            measurementId: "G-8WXC7SKGYN"
+            appId: "1:188712742694:web:85c6e61c34d0745f835be7"
         };
 
-        // Initialize Services
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // --- AUTH OBSERVER (Manages Login State) ---
+        // FAIL-SAFE: If Firebase hangs, show the login button anyway after 2 seconds
+        setTimeout(() => {
+            document.getElementById('loading-indicator').style.width = '100%';
+            setTimeout(() => document.getElementById('loading-indicator').classList.add('hidden'), 500);
+        }, 2000);
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('topBanner').classList.remove('hidden');
-                document.getElementById('mainNav').classList.remove('hidden');
-                document.getElementById('userDisplay').innerText = user.displayName;
-                showView('dashboard'); // Default view
-                loadCourses();         // Fetch data
+                document.getElementById('sidebar').classList.remove('hidden');
+                document.getElementById('appBody').classList.remove('hidden');
+                document.getElementById('userName').innerText = user.displayName;
+                loadCourses();
             } else {
-                // User is signed out
                 document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('topBanner').classList.add('hidden');
-                document.getElementById('mainNav').classList.add('hidden');
-                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             }
         });
 
-        // --- AUTH ACTIONS (Login/Logout) ---
         document.getElementById('loginBtn').onclick = () => {
-            signInWithPopup(auth, provider).catch(err => alert("Authorization Failed: " + err.message));
-        };
-        document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.reload());
-
-        // --- VIEW CONTROLLER (SPA Navigation) ---
-        window.showView = (viewId, courseName = "") => {
-            // Hide all views
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            // Show target view
-            document.getElementById(viewId).classList.remove('hidden');
-            
-            // Set Course Context if needed
-            if(courseName) document.getElementById('activeCourseTitle').innerText = courseName;
-            
-            // Update Active Nav Styling
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if(item.innerText.toLowerCase().includes(viewId.replace('dashboard','institution'))) item.classList.add('active');
-                // Special case for Bb style 'My Institution'
-                if(viewId == 'dashboard' && item.innerText == 'My Institution') item.classList.add('active');
+            signInWithPopup(auth, provider).catch(err => {
+                document.getElementById('statusMsg').innerText = "Error: " + err.message;
             });
         };
 
-        // --- DATA FETCHING (Firestore Courses) ---
+        document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
+
+        window.showView = (viewId, title = "") => {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            if(title) document.getElementById('activeCourseTitle').innerText = title;
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.innerText.toLowerCase().includes(viewId.replace('dashboard','institution'))) item.classList.add('active');
+            });
+        };
+
         async function loadCourses() {
             try {
-                console.log("Fetching courses collection...");
                 const snap = await getDocs(collection(db, "courses"));
-                const container = document.getElementById('courseList');
-                container.innerHTML = "";
-                
+                const list = document.getElementById('courseList');
+                list.innerHTML = "";
                 if(snap.empty) {
-                    console.warn("Collection 'courses' exists but is empty.");
-                    container.innerHTML = "<p>No courses found. Ensure data exists in Firestore collection 'courses'.</p>";
+                    list.innerHTML = "No courses found. Add a 'courses' collection in Firestore.";
                     return;
                 }
-
-                // Bb List Styling instead of Cards
                 snap.forEach(doc => {
                     const d = doc.data();
-                    const item = document.createElement('div');
-                    item.className = 'course-list-item';
-                    item.onclick = () => showView('course-view', d.name);
-                    item.innerHTML = `
-                        <div class="course-color-bar" style="background:${d.color || '#005689'}"></div>
-                        <div class="course-item-body">
-                            <h3>${d.name}</h3>
-                            <p>${d.code || 'INST-000'}</p>
-                        </div>
-                    `;
-                    container.appendChild(item);
-                    console.log("Loaded course:", d.name);
+                    list.innerHTML += `
+                        <div class="course-item" onclick="showView('course-view', '${d.name}')">
+                            <div class="color-tab" style="background:${d.color || '#b28e0e'}"></div>
+                            <div class="course-text"><h3>${d.name}</h3><p>${d.code || ''}</p></div>
+                        </div>`;
                 });
             } catch (e) {
-                console.error("Firestore Fetch Error:", e);
-                const container = document.getElementById('courseList');
-                container.innerHTML = `<p style="color:red;">Error loading courses: ${e.message}</p>`;
+                console.error(e);
             }
         }
     </script>
