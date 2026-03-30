@@ -3,110 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FairShare - Operational</title>
+    <title>FairShare Pro - Custom</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #6366f1; --primary-dark: #4f46e5; --success: #10b981;
-            --gray-100: #f3f4f6; --gray-500: #6b7280; --gray-800: #1f2937;
+            --primary: #6366f1; /* This will be changed dynamically */
+            --success: #10b981;
+            --gray-100: #f3f4f6;
+            --gray-800: #1f2937;
         }
-        body { font-family: 'Inter', sans-serif; background: #f3f4f6; margin: 0; padding: 0; }
-        .app-container { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        body { font-family: 'Inter', sans-serif; background: #f3f4f6; margin: 0; transition: background 0.3s; }
+        .app-container { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
         
-        /* Header & Balance */
-        header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1.5rem; position: sticky; top: 0; z-index: 10; }
+        /* Dynamic Header */
+        header { background: var(--primary); color: white; padding: 1.5rem; transition: background 0.3s; }
         .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
-        .bal-card { background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); }
+        .bal-card { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 12px; backdrop-filter: blur(5px); }
         
-        /* Tabs */
-        .nav-tabs { display: flex; background: white; border-bottom: 1px solid #eee; }
-        .nav-tab { flex: 1; padding: 1rem; border: none; background: none; color: var(--gray-500); font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
+        /* Navigation */
+        .nav-tabs { display: flex; background: white; border-bottom: 1px solid #eee; overflow-x: auto; }
+        .nav-tab { flex: 1; padding: 1rem; border: none; background: none; color: #667; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; min-width: 100px; }
         .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
         /* Sections */
-        .section { display: none; padding: 1rem; padding-bottom: 80px; }
+        .section { display: none; padding: 1rem; padding-bottom: 100px; animation: fadeIn 0.3s; }
         .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* Forms & Inputs */
+        .card { background: white; border: 1px solid #eee; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
+        input, select { width: 100%; padding: 0.8rem; border: 2px solid #eee; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; }
+        
+        /* Member Management */
+        .member-chip { display: inline-flex; align-items: center; background: var(--gray-100); padding: 5px 12px; border-radius: 20px; margin: 4px; font-size: 0.9rem; }
+        .member-row { display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; }
+        .member-row.included { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
+
+        /* Floating Button */
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); cursor: pointer; z-index: 100; transition: transform 0.2s; }
+        .fab:active { transform: scale(0.9); }
+
         /* Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; z-index: 1000; }
         .modal.active { display: flex; }
         .modal-content { background: white; width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 1.5rem; overflow-y: auto; }
-
-        /* Exclusion UI */
-        .member-row { display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .member-row.included { border-color: var(--primary); background: #eef2ff; }
-        .member-row.excluded { opacity: 0.5; }
-
-        /* Buttons */
-        .fab { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; box-shadow: 0 8px 16px rgba(99,102,241,0.4); cursor: pointer; z-index: 50; }
-        .btn-save { background: var(--primary); color: white; width: 100%; padding: 1.2rem; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
-        
-        .preview-box { background: var(--gray-800); color: #86efac; padding: 1rem; border-radius: 12px; font-family: monospace; margin-top: 1rem; }
-        input, select { width: 100%; padding: 0.8rem; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <header>
-        <div style="font-weight: 800; font-size: 1.4rem;">FairShare</div>
+    <header id="mainHeader">
+        <div style="font-weight: 800; font-size: 1.4rem;">FairShare Custom</div>
         <div class="balance-grid">
-            <div class="bal-card">
-                <small>YOU OWE</small>
-                <div id="totalOwe">$0.00</div>
-            </div>
-            <div class="bal-card">
-                <small>OWED TO YOU</small>
-                <div id="totalOwed">$0.00</div>
-            </div>
+            <div class="bal-card"><small>YOU OWE</small><div id="totalOwe" style="font-size: 1.5rem; font-weight:700;">$0.00</div></div>
+            <div class="bal-card"><small>OWED TO YOU</small><div id="totalOwed" style="font-size: 1.5rem; font-weight:700;">$0.00</div></div>
         </div>
     </header>
 
     <nav class="nav-tabs">
         <button class="nav-tab active" onclick="switchTab('expenses')">Expenses</button>
-        <button class="nav-tab" onclick="switchTab('debts')">Debts</button>
-        <button class="nav-tab" onclick="switchTab('activity')">Activity</button>
+        <button class="nav-tab" onclick="switchTab('people')">People</button>
+        <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
     </nav>
 
     <main class="content">
         <section id="expenses" class="section active">
-            <div id="expenseList">Connecting...</div>
+            <div id="expenseList">Loading cloud data...</div>
         </section>
-        <section id="debts" class="section">
-            <div id="debtsList">No outstanding debts.</div>
+
+        <section id="people" class="section">
+            <div class="card">
+                <h3>Add New Person</h3>
+                <input type="text" id="newPersonName" placeholder="Enter name...">
+                <button onclick="window.addNewMember()" style="width:100%; padding:10px; border-radius:10px; border:none; background:var(--gray-800); color:white;">Add to Group</button>
+            </div>
+            <div id="currentMembersList"></div>
         </section>
-        <section id="activity" class="section">
-            <div id="activityList">Recent activity will appear here.</div>
+
+        <section id="settings" class="section">
+            <div class="card">
+                <h3>App Theme</h3>
+                <p>Choose your brand color:</p>
+                <div style="display:flex; gap:10px;">
+                    <div onclick="window.setTheme('#6366f1')" style="width:40px; height:40px; background:#6366f1; border-radius:50%; cursor:pointer;"></div>
+                    <div onclick="window.setTheme('#ec4899')" style="width:40px; height:40px; background:#ec4899; border-radius:50%; cursor:pointer;"></div>
+                    <div onclick="window.setTheme('#10b981')" style="width:40px; height:40px; background:#10b981; border-radius:50%; cursor:pointer;"></div>
+                    <div onclick="window.setTheme('#f59e0b')" style="width:40px; height:40px; background:#f59e0b; border-radius:50%; cursor:pointer;"></div>
+                    <div onclick="window.setTheme('#1f2937')" style="width:40px; height:40px; background:#1f2937; border-radius:50%; cursor:pointer;"></div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Data Management</h3>
+                <button onclick="localStorage.clear(); location.reload();" style="color:red; background:none; border:none; cursor:pointer;">Reset App Data</button>
+            </div>
         </section>
     </main>
 
-    <button class="fab" id="openBtn"><i class="fas fa-plus"></i></button>
+    <button class="fab" onclick="window.openExpenseModal()"><i class="fas fa-plus"></i></button>
 </div>
 
 <div class="modal" id="expenseModal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h3>Add Expense</h3>
-            <button id="closeBtn" style="border:none; background:none; font-size:1.5rem;">&times;</button>
-        </div>
-        <input type="text" id="desc" placeholder="What was it for?" style="margin-bottom:10px;">
-        <input type="number" id="amount" placeholder="Amount ($)" style="margin-bottom:10px;">
-        <label>Paid by:</label>
-        <select id="payerSelect" style="margin-bottom:10px;"></select>
-        
-        <label>Include in split:</label>
-        <div id="memberList"></div>
-
-        <div class="preview-box" id="calcPreview">Enter details...</div>
-        <button class="btn-save" id="saveBtn">Save & Sync</button>
+        <h3>New Bill</h3>
+        <input type="text" id="billDesc" placeholder="Description">
+        <input type="number" id="billAmount" placeholder="0.00">
+        <label>Who paid?</label>
+        <select id="billPayer"></select>
+        <label>Who's splitting?</label>
+        <div id="splitList"></div>
+        <button class="fab" style="position:static; width:100%; border-radius:12px; margin-top:10px;" onclick="window.saveBill()">Save Bill</button>
+        <button onclick="window.closeModal()" style="width:100%; background:none; border:none; margin-top:10px; color:#999;">Cancel</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
       authDomain: "fireshare-32e9e.firebaseapp.com",
@@ -119,97 +134,136 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let members = [
-        { id: 1, name: "Lan", avatar: "L" },
-        { id: 2, name: "Alice", avatar: "A" },
-        { id: 3, name: "Bob", avatar: "B" }
+    // --- DYNAMIC STATE ---
+    let members = JSON.parse(localStorage.getItem('fs_members')) || [
+        { id: Date.now(), name: "Lan" }
     ];
     let excludedIds = new Set();
     let currentExpenses = [];
 
-    // --- Tab Switching Logic ---
-    window.switchTab = (tabId) => {
+    // --- UI HELPERS ---
+    window.switchTab = (id) => {
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         event.currentTarget.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(id).classList.add('active');
+        if(id === 'people') renderPeopleAdmin();
     };
 
-    // --- Modal Logic ---
-    const modal = document.getElementById('expenseModal');
-    document.getElementById('openBtn').onclick = () => {
-        modal.classList.add('active');
-        excludedIds.clear();
-        renderMemberToggles();
+    window.setTheme = (color) => {
+        document.documentElement.style.setProperty('--primary', color);
+        localStorage.setItem('fs_theme', color);
     };
-    document.getElementById('closeBtn').onclick = () => modal.classList.remove('active');
 
-    // --- Exclusion Logic ---
-    function renderMemberToggles() {
-        const list = document.getElementById('memberList');
+    // Load saved theme
+    const savedTheme = localStorage.getItem('fs_theme');
+    if(savedTheme) window.setTheme(savedTheme);
+
+    // --- PEOPLE MGMT ---
+    window.addNewMember = () => {
+        const name = document.getElementById('newPersonName').value;
+        if(!name) return;
+        members.push({ id: Date.now(), name });
+        localStorage.setItem('fs_members', JSON.stringify(members));
+        document.getElementById('newPersonName').value = '';
+        renderPeopleAdmin();
+    };
+
+    function renderPeopleAdmin() {
+        const list = document.getElementById('currentMembersList');
         list.innerHTML = members.map(m => `
-            <div class="member-row ${excludedIds.has(m.id) ? 'excluded' : 'included'}" data-id="${m.id}">
-                <span>${m.name}</span>
-                <span>${excludedIds.has(m.id) ? 'Excluded' : 'Included'}</span>
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <strong>${m.name}</strong>
+                ${m.name !== 'Lan' ? `<button onclick="window.removeMember(${m.id})" style="color:red; background:none; border:none;">Remove</button>` : ''}
             </div>
         `).join('');
-
-        document.querySelectorAll('.member-row').forEach(row => {
-            row.onclick = () => {
-                const id = parseInt(row.dataset.id);
-                if(excludedIds.has(id)) excludedIds.delete(id);
-                else if(excludedIds.size < members.length - 1) excludedIds.add(id);
-                renderMemberToggles();
-                updatePreview();
-            };
-        });
     }
 
-    function updatePreview() {
-        const total = parseFloat(document.getElementById('amount').value) || 0;
-        const activeCount = members.length - excludedIds.size;
-        document.getElementById('calcPreview').innerText = `Split: $${(total/activeCount).toFixed(2)} per person`;
-    }
-    document.getElementById('amount').oninput = updatePreview;
-    document.getElementById('payerSelect').innerHTML = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    window.removeMember = (id) => {
+        members = members.filter(m => m.id !== id);
+        localStorage.setItem('fs_members', JSON.stringify(members));
+        renderPeopleAdmin();
+    };
 
-    // --- Firebase Actions ---
-    document.getElementById('saveBtn').onclick = async () => {
-        const desc = document.getElementById('desc').value;
-        const total = parseFloat(document.getElementById('amount').value);
-        const payerId = parseInt(document.getElementById('payerSelect').value);
+    // --- EXPENSE MODAL ---
+    window.openExpenseModal = () => {
+        document.getElementById('expenseModal').classList.add('active');
+        excludedIds.clear();
+        const payerSelect = document.getElementById('billPayer');
+        payerSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        renderSplitList();
+    };
+
+    window.closeModal = () => document.getElementById('expenseModal').classList.remove('active');
+
+    function renderSplitList() {
+        const list = document.getElementById('splitList');
+        list.innerHTML = members.map(m => `
+            <div class="member-row ${excludedIds.has(m.id) ? 'excluded' : 'included'}" onclick="window.toggleExclusion(${m.id})">
+                <span>${m.name}</span>
+                <span>${excludedIds.has(m.id) ? 'Skipping' : 'Paying'}</span>
+            </div>
+        `).join('');
+    }
+
+    window.toggleExclusion = (id) => {
+        if(excludedIds.has(id)) excludedIds.delete(id);
+        else if(excludedIds.size < members.length - 1) excludedIds.add(id);
+        renderSplitList();
+    };
+
+    // --- FIREBASE OPS ---
+    window.saveBill = async () => {
+        const desc = document.getElementById('billDesc').value;
+        const total = parseFloat(document.getElementById('billAmount').value);
+        const payerId = parseInt(document.getElementById('billPayer').value);
         const activeIds = members.filter(m => !excludedIds.has(m.id)).map(m => m.id);
 
-        if(!desc || !total) return alert("Fill all fields!");
+        if(!desc || !total) return alert("Fill everything!");
 
         await addDoc(collection(db, "expenses"), {
-            desc, total, payerId, activeIds, 
+            desc, total, payerId, activeIds,
             share: total / activeIds.length,
             timestamp: new Date()
         });
-        modal.classList.remove('active');
+        window.closeModal();
     };
 
     onSnapshot(query(collection(db, "expenses"), orderBy("timestamp", "desc")), (snap) => {
         currentExpenses = snap.docs.map(d => d.data());
-        renderList();
-        updateBalances();
+        renderExpenses();
+        calculateBalances();
     });
 
-    function renderList() {
-        document.getElementById('expenseList').innerHTML = currentExpenses.map(e => `
-            <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #eee;">
-                <div><strong>${e.desc}</strong><br><small>Split: ${e.activeIds.length} people</small></div>
-                <div style="text-align:right"><strong>$${e.total.toFixed(2)}</strong></div>
-            </div>
-        `).join('');
+    function renderExpenses() {
+        const list = document.getElementById('expenseList');
+        list.innerHTML = currentExpenses.map(e => {
+            const payer = members.find(m => m.id === e.payerId) || { name: "Unknown" };
+            return `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>${e.desc}</strong>
+                        <span style="color:var(--primary); font-weight:700;">$${e.total.toFixed(2)}</span>
+                    </div>
+                    <small style="color:#666;">Paid by ${payer.name} • $${e.share.toFixed(2)} each</small>
+                </div>
+            `;
+        }).join('');
     }
 
-    function updateBalances() {
+    function calculateBalances() {
         let owe = 0, owed = 0;
+        // Lan's ID is the anchor for balance calculation
+        const lan = members.find(m => m.name === 'Lan');
+        if(!lan) return;
+
         currentExpenses.forEach(e => {
-            if(e.payerId === 1) owed += e.share * (e.activeIds.length - (e.activeIds.includes(1) ? 1 : 0));
-            else if(e.activeIds.includes(1)) owe += e.share;
+            if(e.payerId === lan.id) {
+                const othersCount = e.activeIds.filter(id => id !== lan.id).length;
+                owed += e.share * othersCount;
+            } else if (e.activeIds.includes(lan.id)) {
+                owe += e.share;
+            }
         });
         document.getElementById('totalOwe').innerText = `$${owe.toFixed(2)}`;
         document.getElementById('totalOwed').innerText = `$${owed.toFixed(2)}`;
