@@ -3,271 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FairShare Pro - Custom</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>LMS Dashboard</title>
     <style>
-        :root {
-            --primary: #6366f1; /* This will be changed dynamically */
-            --success: #10b981;
-            --gray-100: #f3f4f6;
-            --gray-800: #1f2937;
-        }
-        body { font-family: 'Inter', sans-serif; background: #f3f4f6; margin: 0; transition: background 0.3s; }
-        .app-container { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; position: relative; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background: #f5f5f5; }
         
-        /* Dynamic Header */
-        header { background: var(--primary); color: white; padding: 1.5rem; transition: background 0.3s; }
-        .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
-        .bal-card { background: rgba(255,255,255,0.15); padding: 1rem; border-radius: 12px; backdrop-filter: blur(5px); }
+        /* Sidebar Navigation */
+        nav { width: 80px; background: #2D3B45; color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        nav div { margin-bottom: 25px; cursor: pointer; font-size: 12px; text-align: center; }
         
-        /* Navigation */
-        .nav-tabs { display: flex; background: white; border-bottom: 1px solid #eee; overflow-x: auto; }
-        .nav-tab { flex: 1; padding: 1rem; border: none; background: none; color: #667; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; min-width: 100px; }
-        .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        /* Main Content Area */
+        main { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        header { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 10px; }
 
-        /* Sections */
-        .section { display: none; padding: 1rem; padding-bottom: 100px; animation: fadeIn 0.3s; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        /* Forms & Inputs */
-        .card { background: white; border: 1px solid #eee; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
-        input, select { width: 100%; padding: 0.8rem; border: 2px solid #eee; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; }
-        
-        /* Member Management */
-        .member-chip { display: inline-flex; align-items: center; background: var(--gray-100); padding: 5px 12px; border-radius: 20px; margin: 4px; font-size: 0.9rem; }
-        .member-row { display: flex; justify-content: space-between; padding: 12px; background: #f9fafb; border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; }
-        .member-row.included { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-
-        /* Floating Button */
-        .fab { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; font-size: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); cursor: pointer; z-index: 100; transition: transform 0.2s; }
-        .fab:active { transform: scale(0.9); }
-
-        /* Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-height: 90vh; border-radius: 24px 24px 0 0; padding: 1.5rem; overflow-y: auto; }
+        /* Course Cards Grid */
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-banner { height: 120px; background: #0077c2; }
+        .card-info { padding: 15px; }
+        .card-info h3 { margin: 0; color: #0077c2; font-size: 18px; }
+        .card-info p { font-size: 14px; color: #666; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <header id="mainHeader">
-        <div style="font-weight: 800; font-size: 1.4rem;">FairShare Custom</div>
-        <div class="balance-grid">
-            <div class="bal-card"><small>YOU OWE</small><div id="totalOwe" style="font-size: 1.5rem; font-weight:700;">$0.00</div></div>
-            <div class="bal-card"><small>OWED TO YOU</small><div id="totalOwed" style="font-size: 1.5rem; font-weight:700;">$0.00</div></div>
-        </div>
-    </header>
-
-    <nav class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('expenses')">Expenses</button>
-        <button class="nav-tab" onclick="switchTab('people')">People</button>
-        <button class="nav-tab" onclick="switchTab('settings')">Settings</button>
+    <nav>
+        <div style="font-weight: bold; font-size: 1.5rem;">LMS</div>
+        <div>Account</div>
+        <div style="color: #ffca28;">Dashboard</div>
+        <div>Courses</div>
+        <div>Calendar</div>
+        <div>Inbox</div>
     </nav>
 
-    <main class="content">
-        <section id="expenses" class="section active">
-            <div id="expenseList">Loading cloud data...</div>
-        </section>
+    <main>
+        <header>
+            <h1>Dashboard</h1>
+        </header>
 
-        <section id="people" class="section">
+        <section class="course-grid">
             <div class="card">
-                <h3>Add New Person</h3>
-                <input type="text" id="newPersonName" placeholder="Enter name...">
-                <button onclick="window.addNewMember()" style="width:100%; padding:10px; border-radius:10px; border:none; background:var(--gray-800); color:white;">Add to Group</button>
-            </div>
-            <div id="currentMembersList"></div>
-        </section>
-
-        <section id="settings" class="section">
-            <div class="card">
-                <h3>App Theme</h3>
-                <p>Choose your brand color:</p>
-                <div style="display:flex; gap:10px;">
-                    <div onclick="window.setTheme('#6366f1')" style="width:40px; height:40px; background:#6366f1; border-radius:50%; cursor:pointer;"></div>
-                    <div onclick="window.setTheme('#ec4899')" style="width:40px; height:40px; background:#ec4899; border-radius:50%; cursor:pointer;"></div>
-                    <div onclick="window.setTheme('#10b981')" style="width:40px; height:40px; background:#10b981; border-radius:50%; cursor:pointer;"></div>
-                    <div onclick="window.setTheme('#f59e0b')" style="width:40px; height:40px; background:#f59e0b; border-radius:50%; cursor:pointer;"></div>
-                    <div onclick="window.setTheme('#1f2937')" style="width:40px; height:40px; background:#1f2937; border-radius:50%; cursor:pointer;"></div>
+                <div class="card-banner" style="background-color: #4a90e2;"></div>
+                <div class="card-info">
+                    <h3>Advanced Web Dev</h3>
+                    <p>CS-302 • Spring 2026</p>
                 </div>
             </div>
+
             <div class="card">
-                <h3>Data Management</h3>
-                <button onclick="localStorage.clear(); location.reload();" style="color:red; background:none; border:none; cursor:pointer;">Reset App Data</button>
+                <div class="card-banner" style="background-color: #50e3c2;"></div>
+                <div class="card-info">
+                    <h3>Data Structures</h3>
+                    <p>CS-201 • Spring 2026</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-banner" style="background-color: #f5a623;"></div>
+                <div class="card-info">
+                    <h3>Cyber Security</h3>
+                    <p>CS-405 • Spring 2026</p>
+                </div>
             </div>
         </section>
     </main>
 
-    <button class="fab" onclick="window.openExpenseModal()"><i class="fas fa-plus"></i></button>
-</div>
-
-<div class="modal" id="expenseModal">
-    <div class="modal-content">
-        <h3>New Bill</h3>
-        <input type="text" id="billDesc" placeholder="Description">
-        <input type="number" id="billAmount" placeholder="0.00">
-        <label>Who paid?</label>
-        <select id="billPayer"></select>
-        <label>Who's splitting?</label>
-        <div id="splitList"></div>
-        <button class="fab" style="position:static; width:100%; border-radius:12px; margin-top:10px;" onclick="window.saveBill()">Save Bill</button>
-        <button onclick="window.closeModal()" style="width:100%; background:none; border:none; margin-top:10px; color:#999;">Cancel</button>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    // --- FIREBASE CONFIG ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
-      authDomain: "fireshare-32e9e.firebaseapp.com",
-      projectId: "fireshare-32e9e",
-      storageBucket: "fireshare-32e9e.firebasestorage.app",
-      messagingSenderId: "188712742694",
-      appId: "1:188712742694:web:85c6e61c34d0745f835be7"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // --- DYNAMIC STATE ---
-    let members = JSON.parse(localStorage.getItem('fs_members')) || [
-        { id: Date.now(), name: "Lan" }
-    ];
-    let excludedIds = new Set();
-    let currentExpenses = [];
-
-    // --- UI HELPERS ---
-    window.switchTab = (id) => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        document.getElementById(id).classList.add('active');
-        if(id === 'people') renderPeopleAdmin();
-    };
-
-    window.setTheme = (color) => {
-        document.documentElement.style.setProperty('--primary', color);
-        localStorage.setItem('fs_theme', color);
-    };
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('fs_theme');
-    if(savedTheme) window.setTheme(savedTheme);
-
-    // --- PEOPLE MGMT ---
-    window.addNewMember = () => {
-        const name = document.getElementById('newPersonName').value;
-        if(!name) return;
-        members.push({ id: Date.now(), name });
-        localStorage.setItem('fs_members', JSON.stringify(members));
-        document.getElementById('newPersonName').value = '';
-        renderPeopleAdmin();
-    };
-
-    function renderPeopleAdmin() {
-        const list = document.getElementById('currentMembersList');
-        list.innerHTML = members.map(m => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <strong>${m.name}</strong>
-                ${m.name !== 'Lan' ? `<button onclick="window.removeMember(${m.id})" style="color:red; background:none; border:none;">Remove</button>` : ''}
-            </div>
-        `).join('');
-    }
-
-    window.removeMember = (id) => {
-        members = members.filter(m => m.id !== id);
-        localStorage.setItem('fs_members', JSON.stringify(members));
-        renderPeopleAdmin();
-    };
-
-    // --- EXPENSE MODAL ---
-    window.openExpenseModal = () => {
-        document.getElementById('expenseModal').classList.add('active');
-        excludedIds.clear();
-        const payerSelect = document.getElementById('billPayer');
-        payerSelect.innerHTML = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-        renderSplitList();
-    };
-
-    window.closeModal = () => document.getElementById('expenseModal').classList.remove('active');
-
-    function renderSplitList() {
-        const list = document.getElementById('splitList');
-        list.innerHTML = members.map(m => `
-            <div class="member-row ${excludedIds.has(m.id) ? 'excluded' : 'included'}" onclick="window.toggleExclusion(${m.id})">
-                <span>${m.name}</span>
-                <span>${excludedIds.has(m.id) ? 'Skipping' : 'Paying'}</span>
-            </div>
-        `).join('');
-    }
-
-    window.toggleExclusion = (id) => {
-        if(excludedIds.has(id)) excludedIds.delete(id);
-        else if(excludedIds.size < members.length - 1) excludedIds.add(id);
-        renderSplitList();
-    };
-
-    // --- FIREBASE OPS ---
-    window.saveBill = async () => {
-        const desc = document.getElementById('billDesc').value;
-        const total = parseFloat(document.getElementById('billAmount').value);
-        const payerId = parseInt(document.getElementById('billPayer').value);
-        const activeIds = members.filter(m => !excludedIds.has(m.id)).map(m => m.id);
-
-        if(!desc || !total) return alert("Fill everything!");
-
-        await addDoc(collection(db, "expenses"), {
-            desc, total, payerId, activeIds,
-            share: total / activeIds.length,
-            timestamp: new Date()
-        });
-        window.closeModal();
-    };
-
-    onSnapshot(query(collection(db, "expenses"), orderBy("timestamp", "desc")), (snap) => {
-        currentExpenses = snap.docs.map(d => d.data());
-        renderExpenses();
-        calculateBalances();
-    });
-
-    function renderExpenses() {
-        const list = document.getElementById('expenseList');
-        list.innerHTML = currentExpenses.map(e => {
-            const payer = members.find(m => m.id === e.payerId) || { name: "Unknown" };
-            return `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <strong>${e.desc}</strong>
-                        <span style="color:var(--primary); font-weight:700;">$${e.total.toFixed(2)}</span>
-                    </div>
-                    <small style="color:#666;">Paid by ${payer.name} • $${e.share.toFixed(2)} each</small>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function calculateBalances() {
-        let owe = 0, owed = 0;
-        // Lan's ID is the anchor for balance calculation
-        const lan = members.find(m => m.name === 'Lan');
-        if(!lan) return;
-
-        currentExpenses.forEach(e => {
-            if(e.payerId === lan.id) {
-                const othersCount = e.activeIds.filter(id => id !== lan.id).length;
-                owed += e.share * othersCount;
-            } else if (e.activeIds.includes(lan.id)) {
-                owe += e.share;
-            }
-        });
-        document.getElementById('totalOwe').innerText = `$${owe.toFixed(2)}`;
-        document.getElementById('totalOwed').innerText = `$${owed.toFixed(2)}`;
-    }
-</script>
 </body>
 </html>
