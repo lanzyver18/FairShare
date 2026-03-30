@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud LMS | Dashboard</title>
+    <title>Cloud LMS | Canvas Clone</title>
     <style>
         :root {
             --sidebar-bg: #2D3B45;
@@ -13,102 +13,81 @@
             --white: #ffffff;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-gray); overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-gray); overflow: hidden; }
 
         /* Sidebar */
-        nav { width: 85px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; transition: 0.3s; }
+        nav { width: 85px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
         .nav-item { margin-bottom: 25px; cursor: pointer; font-size: 11px; text-align: center; opacity: 0.7; width: 100%; border-left: 4px solid transparent; padding: 10px 0; }
-        .nav-item:hover, .nav-item.active { opacity: 1; border-left: 4px solid white; background: rgba(255,255,255,0.05); }
+        .nav-item:hover, .nav-item.active { opacity: 1; border-left: 4px solid white; background: rgba(255,255,255,0.1); }
         .icon-box { width: 28px; height: 28px; background: #555; margin: 0 auto 5px; border-radius: 4px; }
 
         /* Content Area */
         .app-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        header { background: var(--white); padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .view-content { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        header { background: var(--white); padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+        .view-content { padding: 30px; max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
         /* Auth Overlay */
-        #authOverlay { position: fixed; inset: 0; background: var(--sidebar-bg); z-index: 1000; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; text-align: center; }
+        #authOverlay { position: fixed; inset: 0; background: var(--sidebar-bg); z-index: 1000; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; }
         
         /* Dashboard Cards */
-        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
-        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; overflow: hidden; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .card-banner { height: 120px; background: var(--primary-blue); }
         .card-body { padding: 15px; }
-        .card-body h3 { margin: 0; color: var(--primary-blue); font-size: 1.1rem; }
+        .card-body h3 { margin: 0; font-size: 1rem; color: var(--primary-blue); }
 
         /* Tables & Lists */
-        .list-item { background: var(--white); padding: 15px 20px; border: 1px solid var(--border); margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
-        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border); }
-        th { background: #f8f9fa; font-weight: 600; color: #444; }
+        .list-item { background: var(--white); padding: 15px; border: 1px solid var(--border); margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; }
+        table { width: 100%; border-collapse: collapse; background: var(--white); }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
 
         /* Utilities */
         .hidden { display: none !important; }
-        .btn { padding: 10px 22px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn:hover { filter: brightness(1.1); }
-        .btn-google { background: #4285F4; display: flex; align-items: center; gap: 10px; padding: 12px 24px; font-size: 16px; }
-        .status-tag { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        .btn { padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="authOverlay">
-        <h1 style="font-size: 2.5rem; margin-bottom: 10px;">LMS Portal</h1>
-        <p style="opacity: 0.8; margin-bottom: 30px;">Secure Access for Students & Faculty</p>
-        <button class="btn btn-google" id="loginBtn">Sign in with Google</button>
-        <p id="authError" style="color: #ff7675; margin-top: 20px; font-size: 14px;"></p>
+        <h1>LMS Cloud</h1>
+        <p>Sign in to your student portal</p>
+        <button class="btn" id="loginBtn" style="background:#4285F4; margin-top:20px;">Sign in with Google</button>
     </div>
 
     <nav id="mainNav" class="hidden">
         <div class="nav-item active" onclick="showView('dashboard')"><div class="icon-box"></div>Dashboard</div>
         <div class="nav-item" onclick="showView('assignments')"><div class="icon-box"></div>Assignments</div>
         <div class="nav-item" onclick="showView('grades')"><div class="icon-box"></div>Grades</div>
-        <div class="nav-item" id="logoutBtn" style="margin-top: auto; padding-bottom: 30px;"><div class="icon-box" style="background:#d63031"></div>Logout</div>
+        <div class="nav-item" id="logoutBtn" style="margin-top:auto; padding-bottom:20px;"><div class="icon-box" style="background:#ff4757"></div>Logout</div>
     </nav>
 
     <div class="app-container">
         
         <div id="dashboard" class="view hidden">
-            <header>
-                <h1>Course Dashboard</h1>
-                <div id="userDisplay" style="font-weight: 600; color: #555;"></div>
-            </header>
+            <header><h1>Dashboard</h1> <span id="userDisplay"></span></header>
             <div class="view-content">
                 <div class="course-grid" id="courseList">
-                    <div class="card"><div class="card-body"><h3>Connecting to Cloud...</h3></div></div>
+                    <p>Loading your courses from the cloud...</p>
                 </div>
             </div>
         </div>
 
         <div id="course-view" class="view hidden">
-            <header>
-                <h1 id="activeCourseTitle">Course Content</h1>
-                <button class="btn" onclick="showView('dashboard')">Back to Dashboard</button>
-            </header>
+            <header><h1 id="activeCourseTitle">Course</h1> <button class="btn" onclick="showView('dashboard')">Back</button></header>
             <div class="view-content">
-                <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
-                    <h3>Syllabus & Overview</h3>
-                    <p style="color: #666; line-height: 1.6;">Welcome to the course. Below you will find the organized modules and learning materials for this semester.</p>
-                </div>
                 <h3>Modules</h3>
-                <div class="list-item"><span>📁 Module 1: Introduction & Ethics</span> <span class="status-tag" style="background:#e3f2fd; color:#0077c2;">Available</span></div>
-                <div class="list-item"><span>📁 Module 2: Practical Lab Work</span> <span class="status-tag" style="background:#e3f2fd; color:#0077c2;">Available</span></div>
-                <div class="list-item"><span>🔒 Module 3: Final Examination Review</span> <span class="status-tag">Locked</span></div>
+                <div class="list-item"><span>Module 1: Introduction</span> <span>🔓</span></div>
+                <div class="list-item"><span>Module 2: Core Concepts</span> <span>🔓</span></div>
+                <div class="list-item"><span>Module 3: Final Project</span> <span>🔒</span></div>
             </div>
         </div>
 
         <div id="assignments" class="view hidden">
-            <header><h1>All Assignments</h1></header>
+            <header><h1>Assignments</h1></header>
             <div class="view-content">
-                <div class="list-item">
-                    <div><strong>Research Proposal</strong><br><small>Due: March 31, 2026</small></div>
-                    <span class="status-tag" style="background:#dff9fb; color:#130f40;">Upcoming</span>
-                </div>
-                <div class="list-item">
-                    <div><strong>Midterm Quiz</strong><br><small>Closed: March 15, 2026</small></div>
-                    <span class="status-tag" style="background:#ebfbee; color:#27ae60;">Completed</span>
-                </div>
+                <div class="list-item"><span><b>Research Paper</b><br><small>Due: April 10</small></span> <span style="color:green">Submitted</span></div>
+                <div class="list-item"><span><b>Lab Quiz</b><br><small>Due: April 15</small></span> <span style="color:red">Missing</span></div>
             </div>
         </div>
 
@@ -116,13 +95,9 @@
             <header><h1>Grades</h1></header>
             <div class="view-content">
                 <table>
-                    <thead>
-                        <tr><th>Assessment</th><th>Due Date</th><th>Score</th><th>Feedback</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Initial Assessment</td><td>Feb 10</td><td>95/100</td><td>Excellent start!</td></tr>
-                        <tr><td>Module 1 Project</td><td>Mar 05</td><td>88/100</td><td>Watch your citations.</td></tr>
-                    </tbody>
+                    <tr><th>Assessment</th><th>Score</th></tr>
+                    <tr><td>Midterm</td><td>92/100</td></tr>
+                    <tr><td>Participation</td><td>100/100</td></tr>
                 </table>
             </div>
         </div>
@@ -149,69 +124,64 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // --- AUTH CONTROL ---
-        document.getElementById('loginBtn').onclick = async () => {
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (err) {
-                document.getElementById('authError').innerText = "Auth Error: " + err.message;
-            }
-        };
-
-        document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.reload());
-
+        // --- Auth Observer ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('mainNav').classList.remove('hidden');
-                document.getElementById('userDisplay').innerText = user.displayName;
+                document.getElementById('userDisplay').innerText = "Hi, " + user.displayName;
                 showView('dashboard');
                 loadCourses();
             } else {
                 document.getElementById('authOverlay').classList.remove('hidden');
+                document.getElementById('mainNav').classList.add('hidden');
+                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             }
         });
 
-        // --- VIEW SWITCHING ---
-        window.showView = (viewId, courseName = "") => {
+        // --- Login / Logout ---
+        document.getElementById('loginBtn').onclick = () => {
+            signInWithPopup(auth, provider).catch(err => alert("Auth Error: " + err.message));
+        };
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        // --- View Controller ---
+        window.showView = (viewId, name = "") => {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
+            if(name) document.getElementById('activeCourseTitle').innerText = name;
             
-            if(courseName) document.getElementById('activeCourseTitle').innerText = courseName;
-
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
                 if(item.innerText.toLowerCase().includes(viewId)) item.classList.add('active');
             });
         };
 
-        // --- DATA LOADING ---
+        // --- Data Fetch ---
         async function loadCourses() {
             try {
-                const querySnapshot = await getDocs(collection(db, "courses"));
+                const snap = await getDocs(collection(db, "courses"));
                 const container = document.getElementById('courseList');
                 container.innerHTML = "";
                 
-                if (querySnapshot.empty) {
-                    container.innerHTML = "<p>No courses found in Firestore 'courses' collection.</p>";
+                if(snap.empty) {
+                    container.innerHTML = "<p>No courses found. Add a 'courses' collection in Firestore.</p>";
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
+                snap.forEach(doc => {
+                    const d = doc.data();
                     const card = document.createElement('div');
                     card.className = 'card';
-                    card.onclick = () => showView('course-view', data.name);
+                    card.onclick = () => showView('course-view', d.name);
                     card.innerHTML = `
-                        <div class="card-banner" style="background:${data.color || '#0077c2'}"></div>
-                        <div class="card-body">
-                            <h3>${data.name}</h3>
-                            <p>${data.code || ''}</p>
-                        </div>`;
+                        <div class="card-banner" style="background:${d.color || '#0077c2'}"></div>
+                        <div class="card-body"><h3>${d.name}</h3><p>${d.code || ''}</p></div>
+                    `;
                     container.appendChild(card);
                 });
             } catch (e) {
-                console.error("Error loading courses: ", e);
+                console.error(e);
             }
         }
     </script>
