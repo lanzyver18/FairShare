@@ -1,0 +1,2178 @@
+
+html_content = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairShare - Smart Bill Splitting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--gray-800);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--gray-50);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .balance-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .balance-amount.positive {
+            color: #86efac;
+        }
+
+        .balance-amount.negative {
+            color: #fca5a5;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 1rem 0.5rem;
+            border: none;
+            background: none;
+            color: var(--gray-500);
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Content Areas */
+        .content {
+            padding: 1rem;
+            padding-bottom: 100px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-100);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Expense List */
+        .expense-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-100);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .expense-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+
+        .expense-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .expense-icon.food { background: #fef3c7; color: #d97706; }
+        .expense-icon.shopping { background: #dbeafe; color: #2563eb; }
+        .expense-icon.transport { background: #d1fae5; color: #059669; }
+        .expense-icon.entertainment { background: #fce7f3; color: #db2777; }
+        .expense-icon.utilities { background: #e0e7ff; color: #4f46e5; }
+
+        .expense-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .expense-title {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .expense-meta {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .expense-amount {
+            text-align: right;
+            margin-left: 1rem;
+        }
+
+        .amount-main {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--gray-800);
+        }
+
+        .amount-share {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            border-radius: 24px 24px 0 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-100);
+            color: var(--gray-500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--gray-100);
+            background: var(--gray-50);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+            font-size: 0.9375rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-prefix {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-weight: 600;
+        }
+
+        .input-prefix + .form-input {
+            padding-left: 2.5rem;
+        }
+
+        /* Member Selection */
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem;
+            background: var(--gray-50);
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .member-item:hover {
+            background: var(--gray-100);
+        }
+
+        .member-item.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .member-item.excluded {
+            opacity: 0.5;
+            background: var(--gray-100);
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .member-status {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .member-toggle {
+            width: 48px;
+            height: 28px;
+            background: var(--gray-300);
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .member-toggle.active {
+            background: var(--primary);
+        }
+
+        .member-toggle::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .member-toggle.active::after {
+            left: 22px;
+        }
+
+        /* Split Options */
+        .split-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .split-option {
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .split-option:hover {
+            border-color: var(--primary);
+        }
+
+        .split-option.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .split-option i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .split-option-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        /* Itemized Split */
+        .itemized-container {
+            display: none;
+        }
+
+        .itemized-container.active {
+            display: block;
+        }
+
+        .line-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--gray-50);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .line-item-input {
+            flex: 2;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.9375rem;
+        }
+
+        .line-item-price {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.9375rem;
+        }
+
+        .line-item-assign {
+            flex: 1;
+        }
+
+        .line-item-assign select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .add-item-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px dashed var(--gray-300);
+            border-radius: 10px;
+            background: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .add-item-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Tax & Tip */
+        .tax-tip-section {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .tax-tip-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .tax-tip-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .tax-tip-label {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .tax-tip-input {
+            width: 100px;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            text-align: right;
+        }
+
+        /* OCR Upload */
+        .upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            background: var(--gray-50);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-hint {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        /* Debts Section */
+        .debt-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .debt-card.owe {
+            border-left-color: var(--danger);
+        }
+
+        .debt-card.owed {
+            border-left-color: var(--success);
+        }
+
+        .debt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .debt-person {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .debt-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .debt-info h4 {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .debt-info p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .debt-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .debt-amount.owe {
+            color: var(--danger);
+        }
+
+        .debt-amount.owed {
+            color: var(--success);
+        }
+
+        .debt-details {
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .debt-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .simplify-banner {
+            background: linear-gradient(135deg, var(--primary-light), #e0e7ff);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .simplify-text {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .simplify-subtext {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        /* Groups */
+        .group-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .group-header {
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--gray-800), var(--gray-900));
+            color: white;
+        }
+
+        .group-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .group-meta {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .group-members {
+            display: flex;
+            padding: 1rem 1.25rem;
+            gap: -0.5rem;
+        }
+
+        .group-member-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: 2px solid white;
+            margin-left: -0.5rem;
+        }
+
+        .group-member-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .group-member-avatar.more {
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+
+        .group-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .group-stat {
+            text-align: center;
+        }
+
+        .group-stat-value {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--gray-800);
+        }
+
+        .group-stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 1.5rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            transition: all 0.2s;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Animation for calculations */
+        .calculation-preview {
+            background: var(--gray-800);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .calc-row.total {
+            border-top: 1px solid var(--gray-600);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            font-weight: 700;
+            opacity: 1;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--gray-800);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 300;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Settlement Flow */
+        .settlement-path {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+        }
+
+        .settlement-node {
+            text-align: center;
+        }
+
+        .settlement-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+        }
+
+        .settlement-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .settlement-arrow {
+            margin: 0 1rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .settlement-amount {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.125rem;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 640px) {
+            .app-container {
+                margin: 2rem auto;
+                min-height: calc(100vh - 4rem);
+                border-radius: 24px;
+                overflow: hidden;
+            }
+            
+            .modal {
+                border-radius: 24px;
+                margin-bottom: 2rem;
+                max-height: calc(100vh - 4rem);
+            }
+        }
+
+        /* Loading animation */
+        .scanning-animation {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .scanning-animation.active {
+            display: block;
+        }
+
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .scanner-line::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scan 2s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+
+        /* Remainder selector */
+        .remainder-section {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .remainder-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remainder-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .remainder-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid #f59e0b;
+            background: white;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .remainder-chip:hover {
+            background: #fef3c7;
+        }
+
+        .remainder-chip.selected {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <i class="fas fa-scale-balanced"></i>
+                    <span>FairShare</span>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="showNotifications()">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="icon-btn" onclick="showProfile()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="balance-cards">
+                <div class="balance-card">
+                    <div class="balance-label">You Owe</div>
+                    <div class="balance-amount negative" id="totalOwe">$0.00</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-label">Owed to You</div>
+                    <div class="balance-amount positive" id="totalOwed">$0.00</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('expenses')">
+                <i class="fas fa-receipt"></i> Expenses
+            </button>
+            <button class="nav-tab" onclick="switchTab('debts')">
+                <i class="fas fa-hand-holding-dollar"></i> Debts
+            </button>
+            <button class="nav-tab" onclick="switchTab('groups')">
+                <i class="fas fa-users"></i> Groups
+            </button>
+            <button class="nav-tab" onclick="switchTab('activity')">
+                <i class="fas fa-clock"></i> Activity
+            </button>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Expenses Section -->
+            <section id="expenses" class="section active">
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-value" id="monthTotal">$0</div>
+                        <div class="summary-label">This Month</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="expenseCount">0</div>
+                        <div class="summary-label">Expenses</div>
+                    </div>
+                </div>
+
+                <div id="expenseList">
+                    <!-- Expenses will be rendered here -->
+                </div>
+
+                <div class="empty-state" id="emptyExpenses" style="display: none;">
+                    <i class="fas fa-receipt"></i>
+                    <h3>No expenses yet</h3>
+                    <p>Add your first expense to get started</p>
+                </div>
+            </section>
+
+            <!-- Debts Section -->
+            <section id="debts" class="section">
+                <div class="simplify-banner" id="simplifyBanner" style="display: none;">
+                    <div>
+                        <div class="simplify-text">Simplify Debts Available</div>
+                        <div class="simplify-subtext">Reduce transactions from <span id="beforeCount">0</span> to <span id="afterCount">0</span></div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="simplifyDebts()" style="width: auto;">
+                        Simplify
+                    </button>
+                </div>
+
+                <div id="debtsList">
+                    <!-- Debts will be rendered here -->
+                </div>
+
+                <div class="empty-state" id="emptyDebts">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>All settled up!</h3>
+                    <p>No outstanding debts</p>
+                </div>
+
+                <div id="simplifiedView" style="display: none;">
+                    <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Optimized Payments</h3>
+                    <div id="simplifiedList"></div>
+                    <button class="btn btn-secondary" onclick="resetSimplification()" style="margin-top: 1rem;">
+                        Show Original Debts
+                    </button>
+                </div>
+            </section>
+
+            <!-- Groups Section -->
+            <section id="groups" class="section">
+                <div id="groupsList">
+                    <!-- Groups will be rendered here -->
+                </div>
+                <button class="btn btn-outline" onclick="createGroup()" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Create New Group
+                </button>
+            </section>
+
+            <!-- Activity Section -->
+            <section id="activity" class="section">
+                <div id="activityList">
+                    <!-- Activity will be rendered here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- FAB -->
+        <button class="fab" onclick="openAddExpense()">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Add Expense Modal -->
+        <div class="modal-overlay" id="addExpenseModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add Expense</h2>
+                    <button class="modal-close" onclick="closeAddExpense()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- OCR Upload Option -->
+                    <div class="upload-area" onclick="simulateOCR()">
+                        <i class="fas fa-camera"></i>
+                        <div class="upload-text">Scan Receipt</div>
+                        <div class="upload-hint">Tap to simulate OCR scanning</div>
+                    </div>
+
+                    <div class="scanning-animation" id="scanningAnim">
+                        <i class="fas fa-receipt" style="font-size: 3rem; color: var(--primary);"></i>
+                        <div class="scanner-line"></div>
+                        <p>Analyzing receipt...</p>
+                    </div>
+
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-input" id="expenseDesc" placeholder="Dinner at Italian Place" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-prefix">$</span>
+                                <input type="number" class="form-input" id="expenseAmount" placeholder="0.00" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="expenseCategory">
+                                <option value="food">🍽️ Food & Dining</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="utilities">💡 Utilities</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Paid By</label>
+                            <select class="form-select" id="paidBy">
+                                <!-- Options populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Split Method</label>
+                            <div class="split-options">
+                                <div class="split-option active" onclick="setSplitMethod('equal')">
+                                    <i class="fas fa-equals"></i>
+                                    <div class="split-option-label">Equal</div>
+                                </div>
+                                <div class="split-option" onclick="setSplitMethod('percentage')">
+                                    <i class="fas fa-percent"></i>
+                                    <div class="split-option-label">Percentage</div>
+                                </div>
+                                <div class="split-option" onclick="setSplitMethod('itemized')">
+                                    <i class="fas fa-list"></i>
+                                    <div class="split-option-label">Itemized</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Itemized Split Container -->
+                        <div class="itemized-container" id="itemizedContainer">
+                            <div class="form-label">Assign Items</div>
+                            <div id="lineItems">
+                                <div class="line-item">
+                                    <input type="text" class="line-item-input" placeholder="Item name">
+                                    <input type="number" class="line-item-price" placeholder="Price" step="0.01">
+                                    <div class="line-item-assign">
+                                        <select class="item-assignee">
+                                            <option value="">Assign to...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="add-item-btn" onclick="addLineItem()">
+                                <i class="fas fa-plus"></i> Add Item
+                            </button>
+                        </div>
+
+                        <!-- Member Selection with Exclusion Toggle -->
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label class="form-label">Split With</label>
+                                <span style="font-size: 0.875rem; color: var(--gray-500);">Toggle to exclude</span>
+                            </div>
+                            <div class="member-list" id="memberList">
+                                <!-- Members populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Tax & Tip -->
+                        <div class="tax-tip-section">
+                            <div class="tax-tip-row">
+                                <span class="tax-tip-label">Tax</span>
+                                <input type="number" class="tax-tip-input" id="taxAmount" placeholder="0.00" step="0.01">
+                            </div>
+                            <div class="tax-tip-row">
+                                <span class="tax-tip-label">Tip (%)</span>
+                                <input type="number" class="tax-tip-input" id="tipPercent" placeholder="0" step="1" onchange="calculateTip()">
+                            </div>
+                            <div class="tax-tip-row">
+                                <span class="tax-tip-label">Tip Amount</span>
+                                <input type="number" class="tax-tip-input" id="tipAmount" placeholder="0.00" step="0.01" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Remainder Handling -->
+                        <div class="remainder-section" id="remainderSection" style="display: none;">
+                            <div class="remainder-title">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Rounding Remainder: $<span id="remainderAmount">0.00</span>
+                            </div>
+                            <p style="font-size: 0.875rem; color: #92400e; margin-bottom: 0.5rem;">Who should absorb the extra cent?</p>
+                            <div class="remainder-options" id="remainderOptions">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Live Calculation Preview -->
+                        <div class="calculation-preview" id="calcPreview">
+                            <div class="calc-row">
+                                <span>Subtotal:</span>
+                                <span id="previewSubtotal">$0.00</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Tax:</span>
+                                <span id="previewTax">$0.00</span>
+                            </div>
+                            <div class="calc-row">
+                                <span>Tip:</span>
+                                <span id="previewTip">$0.00</span>
+                            </div>
+                            <div class="calc-row total">
+                                <span>Total:</span>
+                                <span id="previewTotal">$0.00</span>
+                            </div>
+                            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-600);">
+                                <div id="splitPreview">
+                                    <!-- Per-person split -->
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="saveExpense()">
+                        <i class="fas fa-check"></i> Save Expense
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settle Up Modal -->
+        <div class="modal-overlay" id="settleModal">
+            <div class="modal" style="max-height: 70vh;">
+                <div class="modal-header">
+                    <h2 class="modal-title">Settle Up</h2>
+                    <button class="modal-close" onclick="closeSettleModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body" id="settleContent">
+                    <!-- Content populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" onclick="confirmSettlement()">
+                        <i class="fas fa-check"></i> Mark as Paid
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Data Store
+        let currentUser = { id: 'u1', name: 'You', avatar: 'Y' };
+        
+        let members = [
+            { id: 'u1', name: 'You', avatar: 'Y', email: 'you@example.com' },
+            { id: 'u2', name: 'Alice', avatar: 'A', email: 'alice@example.com' },
+            { id: 'u3', name: 'Bob', avatar: 'B', email: 'bob@example.com' },
+            { id: 'u4', name: 'Charlie', avatar: 'C', email: 'charlie@example.com' }
+        ];
+
+        let groups = [
+            {
+                id: 'g1',
+                name: 'Roommates',
+                members: ['u1', 'u2', 'u3'],
+                expenses: 12,
+                total: 1250.00
+            },
+            {
+                id: 'g2',
+                name: 'Trip to NYC',
+                members: ['u1', 'u2', 'u3', 'u4'],
+                expenses: 8,
+                total: 2400.00
+            }
+        ];
+
+        let expenses = [
+            {
+                id: 'e1',
+                description: 'Dinner at Luigi\'s',
+                amount: 120.00,
+                category: 'food',
+                paidBy: 'u2',
+                date: new Date(Date.now() - 86400000),
+                splitMethod: 'equal',
+                includedMembers: ['u1', 'u2', 'u3', 'u4'],
+                tax: 10.00,
+                tip: 18.00,
+                splits: { u1: 37.00, u2: 37.00, u3: 37.00, u4: 37.00 }
+            },
+            {
+                id: 'e2',
+                description: 'Uber to Airport',
+                amount: 45.00,
+                category: 'transport',
+                paidBy: 'u1',
+                date: new Date(Date.now() - 172800000),
+                splitMethod: 'equal',
+                includedMembers: ['u1', 'u2'],
+                tax: 0,
+                tip: 0,
+                splits: { u1: 22.50, u2: 22.50 }
+            },
+            {
+                id: 'e3',
+                description: 'Grocery Run',
+                amount: 85.50,
+                category: 'shopping',
+                paidBy: 'u3',
+                date: new Date(Date.now() - 259200000),
+                splitMethod: 'itemized',
+                includedMembers: ['u1', 'u2', 'u3'],
+                items: [
+                    { name: 'Milk', price: 4.50, assignedTo: 'u1' },
+                    { name: 'Bread', price: 3.00, assignedTo: 'u2' },
+                    { name: 'Shared Snacks', price: 15.00, assignedTo: 'all' },
+                    { name: 'Cleaning Supplies', price: 12.00, assignedTo: 'all' }
+                ],
+                tax: 5.50,
+                tip: 0,
+                splits: { u1: 28.50, u2: 28.50, u3: 28.50 }
+            }
+        ];
+
+        let activities = [];
+        let currentSplitMethod = 'equal';
+        let excludedMembers = new Set();
+        let remainderBearer = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderExpenses();
+            renderDebts();
+            renderGroups();
+            renderActivity();
+            updateBalance();
+            populateMemberSelects();
+        });
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            
+            event.target.closest('.nav-tab').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Update Balance Display
+        function updateBalance() {
+            const debts = calculateNetDebts();
+            let totalOwe = 0;
+            let totalOwed = 0;
+
+            Object.entries(debts).forEach(([memberId, amount]) => {
+                if (amount > 0) {
+                    totalOwed += amount;
+                } else if (amount < 0) {
+                    totalOwe += Math.abs(amount);
+                }
+            });
+
+            document.getElementById('totalOwe').textContent = `$${totalOwe.toFixed(2)}`;
+            document.getElementById('totalOwed').textContent = `$${totalOwed.toFixed(2)}`;
+            
+            // Update month total
+            const monthTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
+            document.getElementById('monthTotal').textContent = `$${monthTotal.toFixed(0)}`;
+            document.getElementById('expenseCount').textContent = expenses.length;
+        }
+
+        // Calculate Net Debts
+        function calculateNetDebts() {
+            const debts = {};
+            members.forEach(m => debts[m.id] = 0);
+
+            expenses.forEach(expense => {
+                const payer = expense.paidBy;
+                const splits = expense.splits || {};
+
+                // Add what others owe to payer
+                Object.entries(splits).forEach(([memberId, amount]) => {
+                    if (memberId !== payer) {
+                        debts[memberId] -= amount;
+                        debts[payer] += amount;
+                    }
+                });
+            });
+
+            return debts;
+        }
+
+        // Render Expenses
+        function renderExpenses() {
+            const container = document.getElementById('expenseList');
+            const emptyState = document.getElementById('emptyExpenses');
+
+            if (expenses.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = expenses.map(expense => {
+                const payer = members.find(m => m.id === expense.paidBy);
+                const categoryIcons = {
+                    food: 'utensils',
+                    shopping: 'shopping-bag',
+                    transport: 'car',
+                    entertainment: 'film',
+                    utilities: 'bolt'
+                };
+
+                const yourShare = expense.splits[currentUser.id] || 0;
+                const isPayer = expense.paidBy === currentUser.id;
+
+                return `
+                    <div class="expense-item" onclick="viewExpense('${expense.id}')">
+                        <div class="expense-icon ${expense.category}">
+                            <i class="fas fa-${categoryIcons[expense.category]}"></i>
+                        </div>
+                        <div class="expense-details">
+                            <div class="expense-title">${expense.description}</div>
+                            <div class="expense-meta">
+                                ${payer.name} paid • ${formatDate(expense.date)} • ${expense.includedMembers.length} people
+                            </div>
+                        </div>
+                        <div class="expense-amount">
+                            <div class="amount-main">$${expense.amount.toFixed(2)}</div>
+                            <div class="amount-share">
+                                ${isPayer ? 'You lent' : 'You owe'} $${yourShare.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Debts
+        function renderDebts() {
+            const debts = calculateNetDebts();
+            const container = document.getElementById('debtsList');
+            const emptyState = document.getElementById('emptyDebts');
+            const simplifyBanner = document.getElementById('simplifyBanner');
+
+            const debtList = Object.entries(debts).filter(([id, amount]) => Math.abs(amount) > 0.01 && id !== currentUser.id);
+
+            if (debtList.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                simplifyBanner.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            // Check if simplification is possible
+            const simplified = simplifyDebtGraph();
+            if (simplified.length < debtList.length) {
+                simplifyBanner.style.display = 'flex';
+                document.getElementById('beforeCount').textContent = debtList.length;
+                document.getElementById('afterCount').textContent = simplified.length;
+            } else {
+                simplifyBanner.style.display = 'none';
+            }
+
+            container.innerHTML = debtList.map(([memberId, amount]) => {
+                const member = members.find(m => m.id === memberId);
+                const isOwed = amount > 0;
+                const absAmount = Math.abs(amount);
+
+                return `
+                    <div class="debt-card ${isOwed ? 'owed' : 'owe'}">
+                        <div class="debt-header">
+                            <div class="debt-person">
+                                <div class="debt-avatar">${member.avatar}</div>
+                                <div class="debt-info">
+                                    <h4>${member.name}</h4>
+                                    <p>${isOwed ? 'owes you' : 'you owe'}</p>
+                                </div>
+                            </div>
+                            <div class="debt-amount ${isOwed ? 'owed' : 'owe'}">
+                                $${absAmount.toFixed(2)}
+                            </div>
+                        </div>
+                        <div class="debt-details">
+                            ${getDebtDetails(memberId)}
+                        </div>
+                        ${!isOwed ? `<button class="btn btn-sm btn-primary" onclick="settleUp('${memberId}')" style="margin-top: 0.75rem;">Settle Up</button>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getDebtDetails(memberId) {
+            const relevant = expenses.filter(e => 
+                (e.paidBy === currentUser.id && e.splits[memberId]) ||
+                (e.paidBy === memberId && e.splits[currentUser.id])
+            );
+
+            return relevant.slice(0, 3).map(e => {
+                const amount = e.paidBy === currentUser.id ? e.splits[memberId] : e.splits[currentUser.id];
+                return `
+                    <div class="debt-item">
+                        <span>${e.description}</span>
+                        <span>$${amount.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Simplify Debts Algorithm
+        function simplifyDebtGraph() {
+            const debts = calculateNetDebts();
+            const creditors = [];
+            const debtors = [];
+
+            Object.entries(debts).forEach(([id, amount]) => {
+                if (amount > 0.01) creditors.push({ id, amount });
+                else if (amount < -0.01) debtors.push({ id, amount: -amount });
+            });
+
+            const transactions = [];
+            let i = 0, j = 0;
+
+            while (i < debtors.length && j < creditors.length) {
+                const debtor = debtors[i];
+                const creditor = creditors[j];
+                const amount = Math.min(debtor.amount, creditor.amount);
+
+                if (amount > 0.01) {
+                    transactions.push({
+                        from: debtor.id,
+                        to: creditor.id,
+                        amount: amount
+                    });
+                }
+
+                debtor.amount -= amount;
+                creditor.amount -= amount;
+
+                if (debtor.amount < 0.01) i++;
+                if (creditor.amount < 0.01) j++;
+            }
+
+            return transactions;
+        }
+
+        function simplifyDebts() {
+            const simplified = simplifyDebtGraph();
+            const container = document.getElementById('simplifiedList');
+            
+            document.getElementById('debtsList').style.display = 'none';
+            document.getElementById('simplifyBanner').style.display = 'none';
+            document.getElementById('emptyDebts').style.display = 'none';
+            document.getElementById('simplifiedView').style.display = 'block';
+
+            container.innerHTML = simplified.map(t => {
+                const from = members.find(m => m.id === t.from);
+                const to = members.find(m => m.id === t.to);
+                
+                return `
+                    <div class="settlement-path">
+                        <div class="settlement-node">
+                            <div class="settlement-avatar">${from.avatar}</div>
+                            <div class="settlement-name">${from.name}</div>
+                        </div>
+                        <div class="settlement-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                            <div class="settlement-amount">$${t.amount.toFixed(2)}</div>
+                        </div>
+                        <div class="settlement-node">
+                            <div class="settlement-avatar">${to.avatar}</div>
+                            <div class="settlement-name">${to.name}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            showToast('Debts simplified! Fewer transactions needed.');
+        }
+
+        function resetSimplification() {
+            document.getElementById('debtsList').style.display = 'block';
+            document.getElementById('simplifyBanner').style.display = 'flex';
+            document.getElementById('simplifiedView').style.display = 'none';
+            renderDebts();
+        }
+
+        // Render Groups
+        function renderGroups() {
+            const container = document.getElementById('groupsList');
+            
+            container.innerHTML = groups.map(group => {
+                const groupMembers = group.members.map(id => members.find(m => m.id === id));
+                const displayMembers = groupMembers.slice(0, 3);
+                const remaining = groupMembers.length - 3;
+
+                return `
+                    <div class="group-card">
+                        <div class="group-header">
+                            <div class="group-title">${group.name}</div>
+                            <div class="group-meta">${group.expenses} expenses • $${group.total.toFixed(2)} total</div>
+                        </div>
+                        <div class="group-members">
+                            ${displayMembers.map(m => `
+                                <div class="group-member-avatar" title="${m.name}">${m.avatar}</div>
+                            `).join('')}
+                            ${remaining > 0 ? `<div class="group-member-avatar more">+${remaining}</div>` : ''}
+                        </div>
+                        <div class="group-stats">
+                            <div class="group-stat">
+                                <div class="group-stat-value">$${(group.total / group.members.length).toFixed(0)}</div>
+                                <div class="group-stat-label">Per Person</div>
+                            </div>
+                            <div class="group-stat">
+                                <div class="group-stat-value">${group.expenses}</div>
+                                <div class="group-stat-label">Expenses</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Activity
+        function renderActivity() {
+            const container = document.getElementById('activityList');
+            const allActivity = [...activities, ...expenses.map(e => ({
+                type: 'expense',
+                date: e.date,
+                data: e
+            }))].sort((a, b) => b.date - a.date);
+
+            if (allActivity.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <h3>No activity yet</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = allActivity.slice(0, 20).map(activity => {
+                if (activity.type === 'expense') {
+                    const e = activity.data;
+                    const payer = members.find(m => m.id === e
+
+        // Continuing script from where it left off...
+        
+        function renderActivity() {
+            const container = document.getElementById('activityList');
+            const sortedExpenses = [...expenses].sort((a, b) => b.date - a.date);
+
+            container.innerHTML = sortedExpenses.map(e => {
+                const payer = members.find(m => m.id === e.paidBy);
+                return `
+                    <div class="card" style="padding: 1rem; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong>${payer.name} added "${e.description}"</strong>
+                            <span style="color: var(--gray-500);">${formatDate(e.date)}</span>
+                        </div>
+                        <div style="margin-top: 0.25rem; color: var(--gray-600);">
+                            Total: $${e.amount.toFixed(2)} • Split between ${e.includedMembers.length} people
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Core Split Logic & Exclusion Feature ---
+
+        function openAddExpense() {
+            document.getElementById('addExpenseModal').classList.add('active');
+            excludedMembers.clear();
+            renderMemberToggles();
+            updateCalculations();
+        }
+
+        function closeAddExpense() {
+            document.getElementById('addExpenseModal').classList.remove('active');
+            document.getElementById('expenseForm').reset();
+            document.getElementById('itemizedContainer').classList.remove('active');
+            document.getElementById('scanningAnim').classList.remove('active');
+        }
+
+        function toggleMemberExclusion(memberId) {
+            if (excludedMembers.has(memberId)) {
+                excludedMembers.delete(memberId);
+            } else {
+                // Ensure at least one person is always included
+                if (excludedMembers.size < members.length - 1) {
+                    excludedMembers.add(memberId);
+                } else {
+                    showToast("At least one person must be included!");
+                }
+            }
+            renderMemberToggles();
+            updateCalculations();
+        }
+
+        function renderMemberToggles() {
+            const container = document.getElementById('memberList');
+            container.innerHTML = members.map(m => {
+                const isExcluded = excludedMembers.has(m.id);
+                return `
+                    <div class="member-item ${isExcluded ? 'excluded' : 'selected'}" onclick="toggleMemberExclusion('${m.id}')">
+                        <div class="member-avatar">${m.avatar}</div>
+                        <div class="member-info">
+                            <div class="member-name">${m.name} ${m.id === currentUser.id ? '(You)' : ''}</div>
+                            <div class="member-status">${isExcluded ? 'Excluded from this bill' : 'Sharing this bill'}</div>
+                        </div>
+                        <div class="member-toggle ${isExcluded ? '' : 'active'}"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function setSplitMethod(method) {
+            currentSplitMethod = method;
+            document.querySelectorAll('.split-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const itemizedSection = document.getElementById('itemizedContainer');
+            if (method === 'itemized') {
+                itemizedSection.classList.add('active');
+                populateItemAssignees();
+            } else {
+                itemizedSection.classList.remove('active');
+            }
+            updateCalculations();
+        }
+
+        // --- Calculation Engine ---
+
+        function updateCalculations() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const tax = parseFloat(document.getElementById('taxAmount').value) || 0;
+            const tipPercent = parseFloat(document.getElementById('tipPercent').value) || 0;
+            
+            const tipAmount = (amount * tipPercent) / 100;
+            document.getElementById('tipAmount').value = tipAmount.toFixed(2);
+            
+            const total = amount + tax + tipAmount;
+            const activeMembers = members.filter(m => !excludedMembers.has(m.id));
+            
+            // Display Previews
+            document.getElementById('previewSubtotal').textContent = `$${amount.toFixed(2)}`;
+            document.getElementById('previewTax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('previewTip').textContent = `$${tipAmount.toFixed(2)}`;
+            document.getElementById('previewTotal').textContent = `$${total.toFixed(2)}`;
+
+            const splitContainer = document.getElementById('splitPreview');
+            
+            if (activeMembers.length > 0) {
+                // Calculation with Remainder Detection
+                const rawSplit = total / activeMembers.length;
+                const roundedSplit = Math.floor(rawSplit * 100) / 100;
+                const totalRounded = roundedSplit * activeMembers.length;
+                const remainder = parseFloat((total - totalRounded).toFixed(2));
+
+                if (remainder > 0) {
+                    document.getElementById('remainderSection').style.display = 'block';
+                    document.getElementById('remainderAmount').textContent = remainder.toFixed(2);
+                    renderRemainderOptions(activeMembers);
+                } else {
+                    document.getElementById('remainderSection').style.display = 'none';
+                    remainderBearer = null;
+                }
+
+                splitContainer.innerHTML = activeMembers.map(m => {
+                    const share = (m.id === remainderBearer) ? roundedSplit + remainder : roundedSplit;
+                    return `
+                        <div class="calc-row">
+                            <span>${m.name}'s share:</span>
+                            <span>$${share.toFixed(2)}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderRemainderOptions(activeMembers) {
+            const container = document.getElementById('remainderOptions');
+            container.innerHTML = activeMembers.map(m => `
+                <div class="remainder-chip ${remainderBearer === m.id ? 'selected' : ''}" 
+                     onclick="setRemainderBearer('${m.id}')">
+                    ${m.name}
+                </div>
+            `).join('');
+        }
+
+        function setRemainderBearer(id) {
+            remainderBearer = id;
+            updateCalculations();
+        }
+
+        // --- OCR Simulation ---
+
+        function simulateOCR() {
+            const anim = document.getElementById('scanningAnim');
+            const form = document.getElementById('expenseForm');
+            
+            anim.classList.add('active');
+            form.style.opacity = '0.3';
+            form.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                anim.classList.remove('active');
+                form.style.opacity = '1';
+                form.style.pointerEvents = 'all';
+                
+                // Simulated scan results
+                document.getElementById('expenseDesc').value = "Group Pizza Night";
+                document.getElementById('expenseAmount').value = "85.00";
+                document.getElementById('taxAmount').value = "7.50";
+                document.getElementById('tipPercent').value = "15";
+                
+                showToast("Receipt scanned successfully!");
+                updateCalculations();
+            }, 2500);
+        }
+
+        // --- Persistence ---
+
+        function saveExpense() {
+            const desc = document.getElementById('expenseDesc').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            
+            if (!desc || !amount) {
+                showToast("Please fill in the description and amount");
+                return;
+            }
+
+            const activeMembers = members.filter(m => !excludedMembers.has(m.id));
+            const total = parseFloat(document.getElementById('previewTotal').textContent.replace('$', ''));
+            const baseShare = Math.floor((total / activeMembers.length) * 100) / 100;
+            const remainder = parseFloat((total - (baseShare * activeMembers.length)).toFixed(2));
+
+            const splits = {};
+            activeMembers.forEach(m => {
+                splits[m.id] = (m.id === remainderBearer || (activeMembers.length === 1)) 
+                               ? baseShare + remainder 
+                               : baseShare;
+            });
+
+            const newExpense = {
+                id: 'e' + (expenses.length + 1),
+                description: desc,
+                amount: total,
+                category: document.getElementById('expenseCategory').value,
+                paidBy: document.getElementById('paidBy').value,
+                date: new Date(),
+                includedMembers: activeMembers.map(m => m.id),
+                splits: splits
+            };
+
+            expenses.unshift(newExpense);
+            closeAddExpense();
+            renderExpenses();
+            renderDebts();
+            updateBalance();
+            showToast("Expense saved!");
+        }
+
+        // --- Helpers ---
+
+        function populateMemberSelects() {
+            const paidBy = document.getElementById('paidBy');
+            paidBy.innerHTML = members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function formatDate(date) {
+            const options = { month: 'short', day: 'numeric' };
+            return new Date(date).toLocaleDateString(undefined, options);
+        }
+
+        // Event listeners for live updates
+        document.getElementById('expenseAmount').addEventListener('input', updateCalculations);
+        document.getElementById('taxAmount').addEventListener('input', updateCalculations);
+        document.getElementById('tipPercent').addEventListener('input', updateCalculations);
+
+    </script>
+</body>
+</html>
