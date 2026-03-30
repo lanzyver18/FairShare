@@ -3,232 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blackboard Learn Pro | Institution Portal</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        /* Modern Reset and Root Variables */
         :root {
-            --bb-charcoal: #262626;
-            --bb-gold: #b28e0e;
-            --bb-bg: #f5f5f5;
-            --bb-border: #cccccc;
-            --bb-blue: #005689;
-            --white: #ffffff;
+            --sidebar-bg: #2D3B45; /* Canvas style dark grey */
+            --sidebar-active: #ffffff; /* Active icon color */
+            --icon-color: #A9A9A9; /* Inactive icon color */
+            --primary-red: #E03E2D; /* Red accent from Canvas logo */
+            --text-color: #333;
+            --bg-gray: #f5f5f5;
         }
 
-        body { font-family: Arial, Helvetica, sans-serif; margin: 0; background: var(--bb-bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: #333; }
+        body {
+            font-family: 'Lato', 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-gray);
+            overflow: hidden;
+        }
 
-        /* --- LOGIN INTERFACE --- */
-        #authOverlay { position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: #333; width: 350px; padding: 40px; border-radius: 4px; border-top: 6px solid var(--bb-gold); box-shadow: 0 15px 35px rgba(0,0,0,0.5); color: white; }
-        .login-box h2 { margin: 0 0 20px; font-size: 1.5rem; font-weight: normal; }
-        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: none; border-radius: 2px; box-sizing: border-box; font-size: 14px; }
-        .btn-bb { width: 100%; padding: 12px; background: var(--bb-gold); color: white; border: none; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
-        .btn-bb:hover { background: #96780c; }
-        .captcha-container { margin-bottom: 15px; transform: scale(0.85); transform-origin: 0 0; }
+        /* --- GLOBAL SIDEBAR --- */
+        nav {
+            width: 84px; /* Canvas standard width */
+            background-color: var(--sidebar-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            z-index: 100;
+        }
 
-        /* --- APP LAYOUT --- */
-        #topBanner { height: 55px; background: var(--bb-charcoal); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1000; }
-        .wrapper { display: flex; flex: 1; overflow: hidden; }
-        
-        /* SIDEBAR */
-        nav { width: 220px; background: #e1e1e1; border-right: 1px solid var(--bb-border); display: flex; flex-direction: column; padding-top: 10px; }
-        .nav-item { padding: 15px 25px; border-bottom: 1px solid #d4d4d4; cursor: pointer; color: #444; font-size: 14px; transition: 0.1s; }
-        .nav-item:hover { background: #d4d4d4; }
-        .nav-item.active { background: var(--bb-gold); color: white; font-weight: bold; }
+        /* Institutional Logo */
+        .logo-placeholder {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--primary-red);
+            font-size: 1.2rem;
+        }
 
-        /* CONTENT */
-        main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: #eee; padding: 25px 35px; border-bottom: 1px solid var(--bb-border); }
-        header h1 { margin: 0; font-size: 1.6rem; font-weight: normal; color: #222; }
-        .content-area { padding: 35px; max-width: 1000px; }
+        /* Navigation Items */
+        .nav-item {
+            margin-bottom: 22px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--icon-color);
+            transition: color 0.2s, background-color 0.2s;
+            width: 100%;
+            padding: 8px 0;
+        }
 
-        /* DASHBOARD STYLING */
-        .section-title { font-size: 1.1rem; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 25px; font-weight: bold; }
-        .course-card { background: white; border: 1px solid var(--bb-border); margin-bottom: 15px; display: flex; cursor: pointer; border-radius: 3px; transition: 0.2s; }
-        .course-card:hover { border-color: #888; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
-        .course-accent { width: 10px; background: var(--bb-gold); }
-        .course-info { padding: 20px; }
-        .course-info h3 { margin: 0; color: var(--bb-blue); font-size: 1.15rem; }
-        .course-info h3:hover { text-decoration: underline; }
+        .nav-item:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
 
-        /* GLOBAL UTILITIES */
-        .hidden { display: none !important; }
-        .bb-box { background: white; padding: 25px; border: 1px solid var(--bb-border); border-left: 5px solid #555; margin-bottom: 20px; border-radius: 2px; }
-        .bb-box h4 { margin: 0 0 10px; color: var(--bb-blue); font-size: 1.1rem; }
+        /* Active State (e.g., Dashboard) */
+        .nav-item.active {
+            color: white;
+            font-weight: bold;
+            background-color: #1a252f; /* Darker grey for active background */
+            position: relative;
+        }
+
+        /* Active Indicator (subtle white line) */
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: white;
+        }
+
+        .nav-item i {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* Logout at bottom */
+        .logout-item {
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Main Header */
+        header {
+            background-color: white;
+            padding: 15px 30px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: var(--text-color);
+        }
+
+        /* --- DASHBOARD CONTENT --- */
+        .dashboard-content {
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+        }
+
+        /* --- COURSE CARDS GRID (Left Side) --- */
+        .course-section {
+            flex: 2; /* Takes up more space */
+        }
+
+        .section-header {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        /* The Card Styling */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Course Color Header */
+        .card-color-header {
+            height: 130px;
+            background-color: var(--primary-red); /* Placeholder red */
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 10px;
+        }
+
+        /* Small action icons on header */
+        .header-icon {
+            color: white;
+            opacity: 0.8;
+            margin-left: 8px;
+        }
+
+        /* Course Information */
+        .card-info {
+            padding: 20px;
+        }
+
+        .card-title {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: var(--primary-red);
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            margin: 0;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Quick Action Icons at Bottom */
+        .card-actions {
+            border-top: 1px solid #eee;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-around;
+            color: #777;
+        }
+
+        .card-actions i:hover {
+            color: var(--primary-red);
+        }
+
+        /* --- TO DO / RIGHT SIDEBAR --- */
+        .sidebar-section {
+            flex: 1; /* Takes up less space */
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .todo-icon {
+            color: var(--primary-red);
+            margin-right: 12px;
+        }
+
+        .todo-text {
+            flex-grow: 1;
+        }
+
+        .todo-title {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .todo-date {
+            margin: 0;
+            font-size: 13px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
 
-    <div id="authOverlay">
-        <div class="login-box">
-            <h2>Institution Login</h2>
-            <input type="email" id="email" placeholder="Username / Email">
-            <input type="password" id="password" placeholder="Password">
-            
-            <div class="captcha-container">
-                <div class="g-recaptcha" data-sitekey="6LfGlZ4sAAAAAM1MFntkDwrI-agOqq0NQgEsvO8_"></div>
-            </div>
-
-            <button class="btn-bb" id="loginBtn">Login</button>
-            <p id="authError" style="color: #ff7675; font-size: 12px; margin-top: 15px; text-align: center;"></p>
+    <nav>
+        <div class="logo-placeholder">LMS</div>
+        
+        <div class="nav-item">
+            <i class="material-icons">account_circle</i>
+            <span>Account</span>
         </div>
-    </div>
-
-    <div id="appContainer" class="hidden">
-        <div id="topBanner">
-            <span style="font-weight:bold; letter-spacing: 0.5px;">BLACKBOARD LEARN PRO</span>
-            <div style="font-size: 13px;">
-                <span id="userNameDisplay"></span> | <a id="logoutLink" style="color:white; cursor:pointer; text-decoration: underline;">Logout</a>
-            </div>
+        
+        <div class="nav-item active">
+            <i class="material-icons">dashboard</i>
+            <span>Dashboard</span>
+        </div>
+        
+        <div class="nav-item">
+            <i class="material-icons">class</i>
+            <span>Courses</span>
+        </div>
+        
+        <div class="nav-item">
+            <i class="material-icons">calendar_today</i>
+            <span>Calendar</span>
+        </div>
+        
+        <div class="nav-item">
+            <i class="material-icons">mail_outline</i>
+            <span>Inbox</span>
         </div>
 
-        <div class="wrapper">
-            <nav id="sidebar">
-                <div class="nav-item active" onclick="switchView('dashboard')">My Institution</div>
-                <div class="nav-item" onclick="switchView('assignments')">Assignments</div>
-                <div class="nav-item" onclick="switchView('grades')">My Grades</div>
-                <div class="nav-item">Tools</div>
-            </nav>
-
-            <main>
-                <div id="dashboard" class="view">
-                    <header><h1>My Courses</h1></header>
-                    <div class="content-area">
-                        <div class="section-title">Enrolled Courses</div>
-                        <div id="courseList">Loading course data...</div>
-                    </div>
-                </div>
-
-                <div id="course-view" class="view hidden">
-                    <header><h1 id="activeCourseTitle">Course Details</h1></header>
-                    <div class="content-area">
-                        <div class="bb-box" style="border-left-color: var(--bb-gold);">
-                            <h4>Announcements</h4>
-                            <p>No new announcements for this course.</p>
-                        </div>
-                        <div class="bb-box">
-                            <h4>Course Content</h4>
-                            <p>Select a module to begin your coursework.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="assignments" class="view hidden">
-                    <header><h1>Activity Stream</h1></header>
-                    <div class="content-area">
-                        <div class="section-title">Upcoming Tasks</div>
-                        <div class="bb-box"><h4>Capstone Project Phase 1</h4><p>Status: <b style="color:var(--bb-gold)">Due Soon</b> | April 10</p></div>
-                    </div>
-                </div>
-
-                <div id="grades" class="view hidden">
-                    <header><h1>Grades</h1></header>
-                    <div class="content-area">
-                        <table style="width:100%; border-collapse: collapse; background:white; border:1px solid #ccc;">
-                            <tr style="background:#f0f0f0;"><th style="padding:15px; border:1px solid #ccc; text-align:left;">Item</th><th style="padding:15px; border:1px solid #ccc;">Grade</th></tr>
-                            <tr><td style="padding:15px; border:1px solid #ccc;">Midterm Exam</td><td style="padding:15px; border:1px solid #ccc; text-align:center;">94 / 100</td></tr>
-                        </table>
-                    </div>
-                </div>
-            </main>
+        <div class="nav-item logout-item">
+            <i class="material-icons">exit_to_app</i>
+            <span>Logout</span>
         </div>
-    </div>
+    </nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
-            authDomain: "fireshare-32e9e.firebaseapp.com",
-            projectId: "fireshare-32e9e",
-            storageBucket: "fireshare-32e9e.firebasestorage.app",
-            messagingSenderId: "188712742694",
-            appId: "1:188712742694:web:85c6e61c34d0745f835be7"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // --- AUTH OBSERVER ---
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('authOverlay').classList.add('hidden');
-                document.getElementById('appContainer').classList.remove('hidden');
-                document.getElementById('userNameDisplay').innerText = user.email.split('@')[0];
-                loadFirestoreCourses();
-            } else {
-                document.getElementById('authOverlay').classList.remove('hidden');
-                document.getElementById('appContainer').classList.add('hidden');
-            }
-        });
-
-        // --- MANUAL LOGIN WITH RECAPTCHA ---
-        document.getElementById('loginBtn').onclick = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const captchaResponse = grecaptcha.getResponse();
-
-            if (!captchaResponse) {
-                document.getElementById('authError').innerText = "Please complete the reCAPTCHA.";
-                return;
-            }
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (err) {
-                document.getElementById('authError').innerText = "Invalid credentials. Try again.";
-                grecaptcha.reset();
-            }
-        };
-
-        // --- LOGOUT ---
-        document.getElementById('logoutLink').onclick = () => signOut(auth);
-
-        // --- VIEW CONTROLLER ---
-        window.switchView = (viewId, courseName = "") => {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-            if(courseName) document.getElementById('activeCourseTitle').innerText = courseName;
-
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if(item.innerText.toLowerCase().includes(viewId.replace('dashboard','institution'))) item.classList.add('active');
-            });
-        };
-
-        // --- LOAD COURSES ---
-        async function loadFirestoreCourses() {
-            try {
-                const snap = await getDocs(collection(db, "courses"));
-                const list = document.getElementById('courseList');
-                list.innerHTML = "";
-                
-                if(snap.empty) {
-                    list.innerHTML = "<p>No enrolled courses found.</p>";
-                    return;
-                }
-
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'course-card';
-                    card.onclick = () => switchView('course-view', data.name);
-                    card.innerHTML = `
-                        <div class="course-accent" style="background:${data.color || '#b28e0e'}"></div>
-                        <div class="course-info">
-                            <h3>${data.name}</h3>
-                            <p>${data.code || 'INST-001'}</p>
-                        </div>
-                    `;
-                    list.appendChild(card);
-                });
-            } catch (e) {
-                console.error("Firestore error:", e);
-            }
-        }
-    </script>
-</body>
-</html>
+    <div class="main-container">
+        
