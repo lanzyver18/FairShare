@@ -3,59 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud LMS - Powered by Firebase</title>
+    <title>Cloud LMS - Firebase Integrated</title>
     <style>
         :root {
             --sidebar-bg: #2D3B45;
             --primary-blue: #0077c2;
             --bg-gray: #f5f5f5;
             --border: #e1e1e1;
+            --white: #ffffff;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-gray); overflow: hidden; }
 
         /* Sidebar Navigation */
         nav { width: 85px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
-        .nav-item { margin-bottom: 25px; cursor: pointer; font-size: 11px; text-align: center; opacity: 0.8; transition: 0.2s; width: 100%; }
+        .nav-item { margin-bottom: 25px; cursor: pointer; font-size: 11px; text-align: center; opacity: 0.8; transition: 0.2s; width: 100%; border-left: 4px solid transparent; }
         .nav-item:hover, .nav-item.active { opacity: 1; border-left: 4px solid white; }
         .icon-box { width: 30px; height: 30px; background: #555; margin: 0 auto 5px; border-radius: 4px; }
 
-        /* Main Area */
+        /* App Layout */
         .app-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        header { background: white; padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        header { background: var(--white); padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .view-content { padding: 30px; }
 
-        /* Course Cards */
+        /* Auth Overlay */
+        #authOverlay { position: fixed; inset: 0; background: var(--sidebar-bg); z-index: 1000; display: flex; justify-content: center; align-items: center; color: white; flex-direction: column; }
+
+        /* Components */
         .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
-        .card { background: white; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; overflow: hidden; }
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; overflow: hidden; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .card-banner { height: 120px; background: var(--primary-blue); }
         .card-body { padding: 15px; }
-
-        /* Grade Table */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; }
+        
+        .list-item { background: var(--white); padding: 20px; border: 1px solid var(--border); margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; }
         th, td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border); }
-
-        .hidden { display: none; }
-        .btn { padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        
+        .hidden { display: none !important; }
+        .btn { padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .status-tag { font-size: 11px; padding: 4px 8px; border-radius: 12px; background: #eee; }
     </style>
 </head>
 <body>
 
-    <nav>
+    <div id="authOverlay">
+        <h1>LMS Portal</h1>
+        <p>Please sign in to access your courses</p>
+        <button class="btn" id="loginBtn" style="background: #4285F4; margin-top: 20px;">Sign in with Google</button>
+    </div>
+
+    <nav id="mainNav" class="hidden">
         <div class="nav-item active" onclick="showView('dashboard')"><div class="icon-box"></div>Dashboard</div>
+        <div class="nav-item" onclick="showView('assignments')"><div class="icon-box"></div>Tasks</div>
         <div class="nav-item" onclick="showView('grades')"><div class="icon-box"></div>Grades</div>
+        <div class="nav-item" id="logoutBtn" style="margin-top: auto; padding-bottom: 20px;"><div class="icon-box" style="background:#e74c3c"></div>Exit</div>
     </nav>
 
     <div class="app-container">
-        <div id="dashboard" class="view">
-            <header><h1>Canvas Dashboard</h1> <button class="btn" id="loginBtn">Sign In</button></header>
+        <div id="dashboard" class="view hidden">
+            <header><h1>Dashboard</h1> <span id="userDisplay"></span></header>
             <div class="view-content">
                 <div class="course-grid" id="courseList">
                     <div class="card">
-                        <div class="card-banner"></div>
-                        <div class="card-body"><h3>Loading Courses...</h3></div>
+                        <div class="card-body"><h3>Loading your courses...</h3></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="course-view" class="view hidden">
+            <header>
+                <h1 id="activeCourseTitle">Course Home</h1>
+                <button class="btn" onclick="showView('dashboard')">Back</button>
+            </header>
+            <div class="view-content">
+                <h3>Modules</h3>
+                <div class="list-item"><span>Module 1: Orientation</span> <span>🔓</span></div>
+                <div class="list-item"><span>Module 2: Core Concepts</span> <span>🔓</span></div>
+                <div class="list-item"><span>Module 3: Project Phase</span> <span>🔒</span></div>
+            </div>
+        </div>
+
+        <div id="assignments" class="view hidden">
+            <header><h1>Assignments</h1></header>
+            <div class="view-content">
+                <div class="list-item">
+                    <div><strong>Unit 1 Quiz</strong><br><small>Due: Mar 25</small></div>
+                    <span class="status-tag" style="background:#d4edda; color:#155724;">Submitted</span>
+                </div>
+                <div class="list-item">
+                    <div><strong>Final Research Paper</strong><br><small>Due: April 10</small></div>
+                    <span class="status-tag" style="background:#f8d7da; color:#721c24;">Not Started</span>
                 </div>
             </div>
         </div>
@@ -64,8 +104,11 @@
             <header><h1>Grades</h1></header>
             <div class="view-content">
                 <table id="gradesTable">
-                    <thead><tr><th>Assignment</th><th>Score</th></tr></thead>
-                    <tbody></tbody>
+                    <thead><tr><th>Assignment</th><th>Due Date</th><th>Score</th></tr></thead>
+                    <tbody>
+                        <tr><td>Midterm Exam</td><td>Mar 10</td><td>92/100</td></tr>
+                        <tr><td>Lab Report 1</td><td>Feb 28</td><td>85/100</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -74,7 +117,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
@@ -86,49 +129,64 @@
             measurementId: "G-8WXC7SKGYN"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // 1. Simple Navigation Logic
-        window.showView = (viewId) => {
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-        };
+        // --- AUTH LOGIC ---
+        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
+        document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => window.location.reload());
 
-        // 2. Auth Logic (Google Sign-In)
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            signInWithPopup(auth, provider).then((result) => {
-                alert("Welcome " + result.user.displayName);
-                document.getElementById('loginBtn').innerText = result.user.displayName;
-            }).catch(error => console.error(error));
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('mainNav').classList.remove('hidden');
+                document.getElementById('userDisplay').innerText = `Hello, ${user.displayName}`;
+                showView('dashboard');
+                loadCourses();
+            } else {
+                document.getElementById('authOverlay').classList.remove('hidden');
+            }
         });
 
-        // 3. Load Courses from Firestore
-        // Note: You need to create a collection named "courses" in your Firebase Console
+        // --- NAVIGATION ---
+        window.showView = (viewId, courseName = "") => {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            if(courseName) document.getElementById('activeCourseTitle').innerText = courseName;
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.innerText.toLowerCase().includes(viewId)) item.classList.add('active');
+            });
+        };
+
+        // --- FIRESTORE DATA ---
         async function loadCourses() {
             const querySnapshot = await getDocs(collection(db, "courses"));
             const container = document.getElementById('courseList');
             
             if (!querySnapshot.empty) {
-                container.innerHTML = ""; // Clear loader
+                container.innerHTML = "";
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    container.innerHTML += `
-                        <div class="card">
-                            <div class="card-banner" style="background:${data.color || '#0077c2'}"></div>
-                            <div class="card-body">
-                                <h3>${data.name}</h3>
-                                <p>${data.code}</p>
-                            </div>
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.onclick = () => showView('course-view', data.name);
+                    card.innerHTML = `
+                        <div class="card-banner" style="background:${data.color || '#0077c2'}"></div>
+                        <div class="card-body">
+                            <h3>${data.name}</h3>
+                            <p>${data.code || 'No Code'}</p>
                         </div>`;
+                    container.appendChild(card);
                 });
+            } else {
+                container.innerHTML = "<p>No courses found. Add a 'courses' collection in Firestore!</p>";
             }
         }
-
-        loadCourses();
     </script>
 </body>
 </html>
