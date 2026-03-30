@@ -18,57 +18,59 @@
 
         /* Top Bar */
         #topBanner { height: 50px; background: var(--bb-charcoal); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; }
-        #topBanner b { font-size: 1.2rem; }
+        #topBanner b { font-size: 1.1rem; }
 
-        /* Layout */
+        /* Layout Container */
         .wrapper { display: flex; flex-grow: 1; overflow: hidden; }
         
-        /* Sidebar */
-        nav { width: 210px; background: #e1e1e1; border-right: 1px solid var(--bb-border); display: flex; flex-direction: column; }
+        /* Sidebar Navigation */
+        nav { width: 200px; background: #e1e1e1; border-right: 1px solid var(--bb-border); display: flex; flex-direction: column; }
         .nav-item { padding: 15px 20px; border-bottom: 1px solid #d4d4d4; cursor: pointer; color: #444; font-size: 14px; }
         .nav-item:hover { background: #d4d4d4; }
         .nav-item.active { background: var(--bb-gold); color: white; font-weight: bold; }
 
-        /* Main Content */
+        /* Main Content View */
         main { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
-        header { background: #eee; padding: 20px 30px; border-bottom: 1px solid var(--bb-border); }
-        header h1 { margin: 0; font-size: 1.5rem; font-weight: normal; }
-        .view-content { padding: 30px; }
+        header { background: #eeeeee; padding: 20px 30px; border-bottom: 1px solid var(--bb-border); }
+        header h1 { margin: 0; font-size: 1.5rem; font-weight: normal; color: #222; }
+        .view-content { padding: 30px; max-width: 1000px; }
 
-        /* Course List Style */
-        .course-item { background: white; border: 1px solid var(--bb-border); margin-bottom: 10px; display: flex; cursor: pointer; border-radius: 3px; }
-        .course-item:hover { border-color: #999; }
+        /* Blackboard List Items */
+        .course-item { background: white; border: 1px solid var(--bb-border); margin-bottom: 12px; display: flex; cursor: pointer; border-radius: 2px; }
+        .course-item:hover { border-color: #999; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .color-tab { width: 8px; background: var(--bb-gold); }
         .course-text { padding: 15px; }
-        .course-text h3 { margin: 0; color: var(--bb-blue); font-size: 1.1rem; }
+        .course-text h3 { margin: 0; color: var(--bb-blue); font-size: 1.1rem; font-weight: bold; }
         .course-text h3:hover { text-decoration: underline; }
 
-        /* Content Items */
+        /* Content Boxes */
         .bb-box { background: white; padding: 20px; border: 1px solid var(--bb-border); border-left: 5px solid #555; margin-bottom: 15px; }
-        .bb-box h4 { margin: 0 0 10px; color: var(--bb-blue); }
+        .bb-box h4 { margin: 0 0 10px; color: var(--bb-blue); font-size: 1.1rem; }
 
-        /* Auth Overlay */
-        #authOverlay { position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .btn-google { background: #4285F4; color: white; border: none; padding: 15px 30px; font-size: 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        /* Authentication Overlay */
+        #authOverlay { position: fixed; inset: 0; background: var(--bb-charcoal); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .btn-google { background: #4285F4; color: white; border: none; padding: 15px 35px; font-size: 16px; border-radius: 2px; cursor: pointer; font-weight: bold; margin-top: 20px; }
 
         .hidden { display: none !important; }
-        #loading-indicator { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--bb-gold); z-index: 3000; transition: width 0.3s; }
+        #loading-line { position: fixed; top: 0; left: 0; width: 0%; height: 3px; background: var(--bb-gold); z-index: 3000; transition: width 0.4s; }
     </style>
 </head>
 <body>
 
-    <div id="loading-indicator"></div>
+    <div id="loading-line"></div>
 
-    <div id="authOverlay">
-        <h1>Institution LMS</h1>
-        <p>Blackboard Learn Authentication</p>
+    <div id="authOverlay" class="hidden">
+        <h1 style="font-size: 2.5rem;">Institution LMS</h1>
+        <p style="opacity: 0.7;">Blackboard Learn Secure Sign-In</p>
         <button class="btn-google" id="loginBtn">Sign in with Google</button>
-        <p id="statusMsg" style="margin-top: 20px; color: #aaa;"></p>
+        <p id="statusMsg" style="margin-top: 20px; font-size: 12px; color: #888;"></p>
     </div>
 
     <div id="topBanner" class="hidden">
         <b>Blackboard Learn</b>
-        <div><span id="userName"></span> | <a id="logoutBtn" style="color:white; cursor:pointer;">Logout</a></div>
+        <div style="font-size: 13px;">
+            <span id="userName"></span> | <a id="logoutBtn" style="color:white; cursor:pointer; text-decoration: underline;">Logout</a>
+        </div>
     </div>
 
     <div class="wrapper">
@@ -83,8 +85,8 @@
             <div id="dashboard" class="view">
                 <header><h1>My Courses</h1></header>
                 <div class="view-content">
-                    <h2 style="font-size: 1.2rem; border-bottom: 2px solid #222; padding-bottom: 5px;">Course List</h2>
-                    <div id="courseList">Loading courses...</div>
+                    <h2 style="font-size: 1.1rem; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 20px;">Course List</h2>
+                    <div id="courseList">Checking for enrolled courses...</div>
                 </div>
             </div>
 
@@ -92,12 +94,12 @@
                 <header><h1 id="activeCourseTitle">Course Content</h1></header>
                 <div class="view-content">
                     <div class="bb-box" style="border-left-color: var(--bb-gold);">
-                        <h4>Syllabus</h4>
-                        <p>Download the latest version of the course schedule.</p>
+                        <h4>Announcements</h4>
+                        <p>Welcome to the new semester. Please review the updated safety protocols.</p>
                     </div>
                     <div class="bb-box">
-                        <h4>Week 1: Foundations</h4>
-                        <p>Complete the reading assignments before Wednesday.</p>
+                        <h4>Learning Modules</h4>
+                        <p>Access your weekly readings and recorded lectures here.</p>
                     </div>
                 </div>
             </div>
@@ -105,8 +107,8 @@
             <div id="assignments" class="view hidden">
                 <header><h1>Assignments</h1></header>
                 <div class="view-content">
-                    <div class="bb-box"><h4>Final Essay Proposal</h4><p>Due: April 10 | Status: Submitted</p></div>
-                    <div class="bb-box"><h4>Unit Quiz 1</h4><p>Due: April 15 | Status: Needs Attempt</p></div>
+                    <div class="bb-box"><h4>Term Project Draft</h4><p>Due: April 10 | <b>Status: Submitted</b></p></div>
+                    <div class="bb-box"><h4>Chapter 4 Quiz</h4><p>Due: April 18 | <b>Status: Upcoming</b></p></div>
                 </div>
             </div>
 
@@ -114,19 +116,19 @@
                 <header><h1>My Grades</h1></header>
                 <div class="view-content">
                     <table style="width:100%; border-collapse: collapse; background:white; border: 1px solid #ccc;">
-                        <tr style="background:#eee;"><th style="padding:10px; border:1px solid #ccc;">Item</th><th style="padding:10px; border:1px solid #ccc;">Grade</th></tr>
-                        <tr><td style="padding:10px; border:1px solid #ccc;">Midterm</td><td style="padding:10px; border:1px solid #ccc;">92 / 100</td></tr>
+                        <tr style="background:#f0f0f0;"><th style="padding:12px; border:1px solid #ccc; text-align:left;">Assessment Item</th><th style="padding:12px; border:1px solid #ccc; text-align:left;">Grade</th></tr>
+                        <tr><td style="padding:12px; border:1px solid #ccc;">Orientation Quiz</td><td style="padding:12px; border:1px solid #ccc;">100 / 100</td></tr>
+                        <tr><td style="padding:12px; border:1px solid #ccc;">Midterm Project</td><td style="padding:12px; border:1px solid #ccc;">94 / 100</td></tr>
                     </table>
                 </div>
             </div>
-
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCa1Pw2PbRmsAP13VnDJQhRU_-N3-fZxAg",
@@ -142,14 +144,15 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // FAIL-SAFE: If Firebase hangs, show the login button anyway after 2 seconds
-        setTimeout(() => {
-            document.getElementById('loading-indicator').style.width = '100%';
-            setTimeout(() => document.getElementById('loading-indicator').classList.add('hidden'), 500);
-        }, 2000);
+        // FAIL-SAFE: Update progress bar
+        document.getElementById('loading-line').style.width = '60%';
 
         onAuthStateChanged(auth, (user) => {
+            document.getElementById('loading-line').style.width = '100%';
+            setTimeout(() => document.getElementById('loading-line').classList.add('hidden'), 400);
+
             if (user) {
+                // User is Logged In
                 document.getElementById('authOverlay').classList.add('hidden');
                 document.getElementById('topBanner').classList.remove('hidden');
                 document.getElementById('sidebar').classList.remove('hidden');
@@ -157,14 +160,15 @@
                 document.getElementById('userName').innerText = user.displayName;
                 loadCourses();
             } else {
+                // User is Logged Out
                 document.getElementById('authOverlay').classList.remove('hidden');
             }
         });
 
+        // Use REDIRECT for iPad/Safari Stability
         document.getElementById('loginBtn').onclick = () => {
-            signInWithPopup(auth, provider).catch(err => {
-                document.getElementById('statusMsg').innerText = "Error: " + err.message;
-            });
+            document.getElementById('statusMsg').innerText = "Redirecting to Google...";
+            signInWithRedirect(auth, provider);
         };
 
         document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
@@ -191,14 +195,17 @@
                 }
                 snap.forEach(doc => {
                     const d = doc.data();
-                    list.innerHTML += `
-                        <div class="course-item" onclick="showView('course-view', '${d.name}')">
-                            <div class="color-tab" style="background:${d.color || '#b28e0e'}"></div>
-                            <div class="course-text"><h3>${d.name}</h3><p>${d.code || ''}</p></div>
-                        </div>`;
+                    const div = document.createElement('div');
+                    div.className = 'course-item';
+                    div.onclick = () => showView('course-view', d.name);
+                    div.innerHTML = `
+                        <div class="color-tab" style="background:${d.color || '#b28e0e'}"></div>
+                        <div class="course-text"><h3>${d.name}</h3><p>${d.code || 'LMS-101'}</p></div>
+                    `;
+                    list.appendChild(div);
                 });
             } catch (e) {
-                console.error(e);
+                console.error("Firestore error:", e);
             }
         }
     </script>
