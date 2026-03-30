@@ -3,70 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Dashboard</title>
+    <title>Canvas Clone Prototype</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background: #f5f5f5; }
-        
-        /* Sidebar Navigation */
-        nav { width: 80px; background: #2D3B45; color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
-        nav div { margin-bottom: 25px; cursor: pointer; font-size: 12px; text-align: center; }
-        
-        /* Main Content Area */
-        main { flex-grow: 1; padding: 20px; overflow-y: auto; }
-        header { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 10px; }
+        :root {
+            --sidebar-bg: #2D3B45;
+            --sidebar-active: #ffffff;
+            --primary-blue: #0077c2;
+            --bg-gray: #f5f5f5;
+            --border: #e1e1e1;
+        }
 
-        /* Course Cards Grid */
-        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-        .card-banner { height: 120px; background: #0077c2; }
-        .card-info { padding: 15px; }
-        .card-info h3 { margin: 0; color: #0077c2; font-size: 18px; }
-        .card-info p { font-size: 14px; color: #666; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-gray); overflow: hidden; }
+
+        /* Sidebar Navigation */
+        nav { width: 85px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 100; }
+        .nav-item { margin-bottom: 25px; cursor: pointer; font-size: 11px; text-align: center; opacity: 0.8; transition: 0.2s; width: 100%; }
+        .nav-item:hover { opacity: 1; border-left: 4px solid var(--primary-blue); }
+        .nav-item.active { opacity: 1; border-left: 4px solid white; }
+        .icon-placeholder { width: 30px; height: 30px; background: #555; margin: 0 auto 5px; border-radius: 4px; display: block; }
+
+        /* Content Container */
+        .app-container { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { background: white; padding: 15px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .view-content { padding: 30px; }
+
+        /* Course Cards */
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        .card { background: white; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; overflow: hidden; }
+        .card-banner { height: 130px; background: var(--primary-blue); }
+        .card-body { padding: 15px; }
+        .card-body h3 { margin: 0; font-size: 16px; color: var(--primary-blue); }
+        .card-body p { font-size: 13px; color: #666; margin-top: 5px; }
+
+        /* Modules & Tables */
+        .module-item { background: white; border: 1px solid var(--border); padding: 15px; margin-bottom: 5px; border-radius: 4px; display: flex; justify-content: space-between; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid var(--border); }
+        th { background: #f9f9f9; color: #444; }
+
+        /* Utility */
+        .hidden { display: none; }
+        .btn { padding: 8px 16px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div style="font-weight: bold; font-size: 1.5rem;">LMS</div>
-        <div>Account</div>
-        <div style="color: #ffca28;">Dashboard</div>
-        <div>Courses</div>
-        <div>Calendar</div>
-        <div>Inbox</div>
+        <div class="nav-item active" onclick="showView('dashboard')">
+            <span class="icon-placeholder"></span>Dashboard
+        </div>
+        <div class="nav-item" onclick="showView('courses')">
+            <span class="icon-placeholder"></span>Courses
+        </div>
+        <div class="nav-item" onclick="showView('grades')">
+            <span class="icon-placeholder"></span>Grades
+        </div>
+        <div class="nav-item">
+            <span class="icon-placeholder"></span>Calendar
+        </div>
     </nav>
 
-    <main>
-        <header>
-            <h1>Dashboard</h1>
-        </header>
-
-        <section class="course-grid">
-            <div class="card">
-                <div class="card-banner" style="background-color: #4a90e2;"></div>
-                <div class="card-info">
-                    <h3>Advanced Web Dev</h3>
-                    <p>CS-302 • Spring 2026</p>
+    <div class="app-container">
+        <div id="dashboard" class="view">
+            <header><h1>Dashboard</h1></header>
+            <div class="view-content">
+                <div class="course-grid">
+                    <div class="card" onclick="showView('course-detail')">
+                        <div class="card-banner" style="background: #e91e63;"></div>
+                        <div class="card-body"><h3>Biology 101</h3><p>BIOL-S26</p></div>
+                    </div>
+                    <div class="card" onclick="showView('course-detail')">
+                        <div class="card-banner" style="background: #3f51b5;"></div>
+                        <div class="card-body"><h3>Modern Architecture</h3><p>ARC-402</p></div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-banner" style="background-color: #50e3c2;"></div>
-                <div class="card-info">
-                    <h3>Data Structures</h3>
-                    <p>CS-201 • Spring 2026</p>
-                </div>
+        <div id="course-detail" class="view hidden">
+            <header>
+                <h1>Modern Architecture > Modules</h1>
+                <button class="btn" onclick="showView('dashboard')">Back to Dashboard</button>
+            </header>
+            <div class="view-content">
+                <h3>Course Modules</h3>
+                <div class="module-item"><span>Module 1: Introduction to Gothic Design</span> <span>🔓</span></div>
+                <div class="module-item"><span>Module 2: The Industrial Revolution</span> <span>🔓</span></div>
+                <div class="module-item"><span>Module 3: Post-Modernism (Quiz)</span> <span>🔒</span></div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-banner" style="background-color: #f5a623;"></div>
-                <div class="card-info">
-                    <h3>Cyber Security</h3>
-                    <p>CS-405 • Spring 2026</p>
-                </div>
+        <div id="grades" class="view hidden">
+            <header><h1>Grades</h1></header>
+            <div class="view-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Assignment</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Midterm Essay</td><td>Mar 15</td><td>Graded</td><td>92/100</td></tr>
+                        <tr><td>Structure Lab</td><td>Mar 28</td><td>Submitted</td><td>—</td></tr>
+                        <tr><td>Final Project</td><td>May 10</td><td>Missing</td><td>0/100</td></tr>
+                    </tbody>
+                </table>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
+    <script>
+        function showView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            // Show requested view
+            document.getElementById(viewId).classList.remove('hidden');
+
+            // Update Sidebar Active State
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if(item.innerText.toLowerCase() === viewId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
